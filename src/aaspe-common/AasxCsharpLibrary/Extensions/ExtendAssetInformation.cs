@@ -6,60 +6,55 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 
 This source code may use other Open Source software components (see LICENSE.txt).
 */
-using System;
 
-namespace Extensions
+namespace aaspe_common.AasxCsharpLibrary.Extensions;
+
+public static class ExtendAssetInformation
 {
-    public static class ExtendAssetInformation
+    #region AasxPackageExplorer
+
+    public static Tuple<string, string> ToCaptionInfo(this IAssetInformation assetInformation)
     {
-        #region AasxPackageExplorer
+        const string caption = "AssetInformation";
+        var info = assetInformation.GlobalAssetId ?? string.Empty;
+        return Tuple.Create(caption, info);
+    }
 
-        public static Tuple<string, string> ToCaptionInfo(this IAssetInformation assetInformation)
+    #endregion
+
+    public static AssetInformation ConvertFromV10(this AssetInformation assetInformation, AasxCompatibilityModels.AdminShellV10.Asset sourceAsset)
+    {
+        //Determine AssetKind
+        var assetKind = AssetKind.Instance;
+        if (sourceAsset.kind.IsType)
         {
-            // dead-csharp off
-            //TODO (jtikekar, 0000-00-00): support KeyType.AssetInformation
-            //var caption = Key.AssetInformation;
-            // dead-csharp on
-            var caption = "AssetInformation";
-            var info = "" + assetInformation.GlobalAssetId;
-            return Tuple.Create(caption, info);
+            assetKind = AssetKind.Type;
         }
 
-        #endregion
-        public static AssetInformation ConvertFromV10(this AssetInformation assetInformation, AasxCompatibilityModels.AdminShellV10.Asset sourceAsset)
+        assetInformation.AssetKind = assetKind;
+
+
+        //Assign GlobalAssetId
+        assetInformation.GlobalAssetId = sourceAsset.identification.id;
+
+        return assetInformation;
+    }
+
+    public static AssetInformation ConvertFromV20(this AssetInformation assetInformation, AasxCompatibilityModels.AdminShellV20.Asset sourceAsset)
+    {
+        //Determine AssetKind
+        var assetKind = AssetKind.Instance;
+        if (sourceAsset.kind.IsType)
         {
-            //Determine AssetKind
-            var assetKind = AssetKind.Instance;
-            if (sourceAsset.kind.IsType)
-            {
-                assetKind = AssetKind.Type;
-            }
-
-            assetInformation.AssetKind = assetKind;
-
-
-            //Assign GlobalAssetId
-            assetInformation.GlobalAssetId = sourceAsset.identification.id;
-
-            return assetInformation;
+            assetKind = AssetKind.Type;
         }
 
-        public static AssetInformation ConvertFromV20(this AssetInformation assetInformation, AasxCompatibilityModels.AdminShellV20.Asset sourceAsset)
-        {
-            //Determine AssetKind
-            var assetKind = AssetKind.Instance;
-            if (sourceAsset.kind.IsType)
-            {
-                assetKind = AssetKind.Type;
-            }
-
-            assetInformation.AssetKind = assetKind;
+        assetInformation.AssetKind = assetKind;
 
 
-            //Assign GlobalAssetId
-            assetInformation.GlobalAssetId = sourceAsset.identification.id;
+        //Assign GlobalAssetId
+        assetInformation.GlobalAssetId = sourceAsset.identification.id;
 
-            return assetInformation;
-        }
+        return assetInformation;
     }
 }

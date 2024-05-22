@@ -11,6 +11,7 @@ using AdminShellNS.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 
 namespace Extensions
 {
@@ -280,7 +281,7 @@ namespace Extensions
                 foreach (var submodelElementWrapper in srcSM.submodelElements)
                 {
                     var sourceSubmodelELement = submodelElementWrapper.submodelElement;
-                    ISubmodelElement outputSubmodelElement = null;
+                    ISubmodelElement? outputSubmodelElement = null;
                     if (sourceSubmodelELement != null)
                     {
                         outputSubmodelElement = outputSubmodelElement.ConvertFromV20(sourceSubmodelELement, shallowCopy);

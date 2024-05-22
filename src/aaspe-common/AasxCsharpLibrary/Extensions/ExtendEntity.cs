@@ -6,13 +6,11 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 
 This source code may use other Open Source software components (see LICENSE.txt).
 */
-using AdminShellNS;
-using AdminShellNS.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Extensions
+using AdminShellNS;
+using Extensions;
+
+namespace aaspe_common.AasxCsharpLibrary.Extensions
 {
     public static class ExtendEntity
     {
@@ -20,58 +18,39 @@ namespace Extensions
 
         public static void Add(this Entity entity, ISubmodelElement submodelElement)
         {
-            if (entity != null)
-            {
-                entity.Statements ??= new();
+            entity.Statements ??= new List<ISubmodelElement>();
 
-                submodelElement.Parent = entity;
+            submodelElement.Parent = entity;
 
-                entity.Statements.Add(submodelElement);
-            }
+            entity.Statements.Add(submodelElement);
         }
 
         public static void Remove(this Entity entity, ISubmodelElement submodelElement)
         {
-            if (entity != null)
-            {
-                if (entity.Statements != null)
-                {
-                    entity.Statements.Remove(submodelElement);
-                }
-            }
+            entity.Statements?.Remove(submodelElement);
         }
 
-        public static object AddChild(this Entity entity, ISubmodelElement childSubmodelElement, EnumerationPlacmentBase placement = null)
+        public static object? AddChild(this Entity entity, ISubmodelElement? childSubmodelElement, EnumerationPlacmentBase placement = null)
         {
             if (childSubmodelElement == null)
                 return null;
             if (entity.Statements == null)
-                entity.Statements = new();
-            if (childSubmodelElement != null)
-                childSubmodelElement.Parent = entity;
+                entity.Statements = new List<ISubmodelElement>();
+            childSubmodelElement.Parent = entity;
             entity.Statements.Add(childSubmodelElement);
             return childSubmodelElement;
         }
 
         #endregion
-        public static Entity ConvertFromV20(this Entity entity, AasxCompatibilityModels.AdminShellV20.Entity sourceEntity)
-        {
-            if (sourceEntity == null)
-            {
-                return null;
-            }
 
+        public static Entity? ConvertFromV20(this Entity? entity, AasxCompatibilityModels.AdminShellV20.Entity sourceEntity)
+        {
             if (!sourceEntity.statements.IsNullOrEmpty())
             {
-                entity.Statements ??= new List<ISubmodelElement>();
-                foreach (var submodelElementWrapper in sourceEntity.statements)
+                if (entity != null) entity.Statements ??= new List<ISubmodelElement>();
+
+                foreach (var outputSubmodelElement in from submodelElementWrapper in sourceEntity.statements select submodelElementWrapper.submodelElement into sourceSubmodelElement let outputSubmodelElement = (ISubmodelElement?) null select outputSubmodelElement.ConvertFromV20(sourceSubmodelElement))
                 {
-                    var sourceSubmodelElement = submodelElementWrapper.submodelElement;
-                    ISubmodelElement outputSubmodelElement = null;
-                    if (sourceSubmodelElement != null)
-                    {
-                        outputSubmodelElement = outputSubmodelElement.ConvertFromV20(sourceSubmodelElement);
-                    }
                     entity.Statements.Add(outputSubmodelElement);
                 }
             }
@@ -82,7 +61,7 @@ namespace Extensions
                 var assetRef = ExtensionsUtil.ConvertReferenceFromV20(sourceEntity.assetRef, ReferenceTypes.ExternalReference);
                 if (assetRef != null)
                 {
-                    entity.GlobalAssetId = assetRef.GetAsIdentifier(); 
+                    entity.GlobalAssetId = assetRef.GetAsIdentifier();
                 }
             }
 
@@ -91,12 +70,11 @@ namespace Extensions
 
         public static T FindFirstIdShortAs<T>(this Entity entity, string idShort) where T : ISubmodelElement
         {
-
             var submodelElements = entity.Statements.Where(sme => (sme != null) && (sme is T) && sme.IdShort.Equals(idShort, StringComparison.OrdinalIgnoreCase));
 
             if (submodelElements.Any())
             {
-                return (T)submodelElements.First();
+                return (T) submodelElements.First();
             }
 
             return default;
@@ -106,7 +84,7 @@ namespace Extensions
             this Entity ent,
             ConceptDescription conceptDescription, string category = null, string idShort = null,
             string idxTemplate = null, int maxNum = 999, bool addSme = false, bool isTemplate = false)
-                where T : ISubmodelElement
+            where T : ISubmodelElement
         {
             if (ent.Statements == null)
                 ent.Statements = new List<ISubmodelElement>();

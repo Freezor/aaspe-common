@@ -9,6 +9,7 @@ This source code may use other Open Source software components (see LICENSE.txt)
 using AdminShellNS.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 
 namespace Extensions
 {

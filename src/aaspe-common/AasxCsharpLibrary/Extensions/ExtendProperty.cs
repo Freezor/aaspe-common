@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 
 namespace Extensions
 {
@@ -95,7 +96,7 @@ namespace Extensions
             return property;
         }
 
-        public static Property ConvertFromV20(this Property property, AasxCompatibilityModels.AdminShellV20.Property sourceProperty)
+        public static Property? ConvertFromV20(this Property? property, AasxCompatibilityModels.AdminShellV20.Property sourceProperty)
         {
             if (sourceProperty == null)
             {

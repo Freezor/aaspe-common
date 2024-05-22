@@ -10,6 +10,7 @@ using AdminShellNS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 
 namespace Extensions
 {
@@ -56,7 +57,7 @@ namespace Extensions
             }
             else if (referable is AnnotatedRelationshipElement annotatedRelationshipElement)
             {
-                annotatedRelationshipElement.Remove(submodelElement);
+                ExtendAnnotatedRelationshipElement.Remove(annotatedRelationshipElement, submodelElement);
             }
             else if (referable is SubmodelElementCollection submodelElementCollection)
             {
@@ -68,7 +69,7 @@ namespace Extensions
             }
             else if (referable is Entity entity)
             {
-                entity.Remove(submodelElement);
+                ExtendEntity.Remove(entity, submodelElement);
             }
         }
 
@@ -80,7 +81,7 @@ namespace Extensions
             }
             else if (referable is AnnotatedRelationshipElement annotatedRelationshipElement)
             {
-                annotatedRelationshipElement.Add(submodelElement);
+                ExtendAnnotatedRelationshipElement.Add(annotatedRelationshipElement, submodelElement);
             }
             else if (referable is SubmodelElementCollection submodelElementCollection)
             {
@@ -92,7 +93,7 @@ namespace Extensions
             }
             else if (referable is Entity entity)
             {
-                entity.Add(submodelElement);
+                ExtendEntity.Add(entity, submodelElement);
             }
         }
 
@@ -166,7 +167,7 @@ namespace Extensions
 
             if (referable is ConceptDescription conceptDescription)
             {
-                conceptDescription.Validate(results);
+                ExtendConceptDescription.Validate(conceptDescription, results);
             }
             else if (referable is Submodel submodel)
             {
@@ -583,7 +584,7 @@ namespace Extensions
             return null;
         }
 
-        public static Extension Add(this IReferable rf, Extension ext)
+        public static Extension Add(this IReferable? rf, Extension ext)
         {
             if (rf.Extensions == null)
                 rf.Extensions = new List<IExtension>();
@@ -591,7 +592,7 @@ namespace Extensions
             return ext;
         }
 
-        public static void MigrateV20QualifiersToExtensions(this IReferable rf)
+        public static void MigrateV20QualifiersToExtensions(this IReferable? rf)
         {
             // access
             if (!(rf is IQualifiable iq) || iq.Qualifiers == null || !(rf is IHasExtensions ihe))

@@ -1,17 +1,10 @@
-﻿using System.Collections.Generic;
-
-namespace AdminShellNS.Extensions
+﻿namespace aaspe_common.AasxCsharpLibrary.Extensions
 {
     public static class ExtendCollection
     {
         public static bool IsNullOrEmpty<T>(this List<T> list)
         {
-            if (list != null && list.Count != 0)
-            {
-                return false;
-            }
-
-            return true;
+            return list.Count == 0;
         }
     }
 }

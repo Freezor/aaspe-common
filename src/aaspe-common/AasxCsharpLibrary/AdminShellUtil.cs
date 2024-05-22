@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 
 namespace AdminShellNS
 {

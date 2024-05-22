@@ -12,6 +12,7 @@ using AdminShellNS.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 
 namespace Extensions
 {
@@ -32,11 +33,11 @@ namespace Extensions
             return res;
         }
 
-        public static object AddChild(this ISubmodelElement submodelElement, ISubmodelElement childSubmodelElement, EnumerationPlacmentBase placement = null)
+        public static object? AddChild(this ISubmodelElement submodelElement, ISubmodelElement? childSubmodelElement, EnumerationPlacmentBase placement = null)
         {
             if (submodelElement is AnnotatedRelationshipElement annotatedRelationshipElement)
             {
-                return annotatedRelationshipElement.AddChild(childSubmodelElement, placement);
+                return ExtendAnnotatedRelationshipElement.AddChild(annotatedRelationshipElement, childSubmodelElement);
             }
             else if (submodelElement is SubmodelElementCollection submodelElementCollection)
             {
@@ -52,7 +53,7 @@ namespace Extensions
             }
             else if (submodelElement is Entity entity)
             {
-                return entity.AddChild(childSubmodelElement, placement);
+                return ExtendEntity.AddChild(entity, childSubmodelElement, placement);
             }
             else
                 return childSubmodelElement;
@@ -249,7 +250,7 @@ namespace Extensions
                 else if (sourceSubmodelElement is AdminShellV10.Blob blob)
                 {
                     var newBlob = new Blob("");
-                    outputSubmodelElement = newBlob.ConvertFromV10(blob);
+                    outputSubmodelElement = ExtendBlob.ConvertFromV10(newBlob, blob);
                 }
                 else if (sourceSubmodelElement is AdminShellV10.ReferenceElement sourceReferenceElement)
                 {
@@ -378,9 +379,9 @@ namespace Extensions
             }
         }
 
-        public static ISubmodelElement ConvertFromV20(this ISubmodelElement submodelElement, AdminShellV20.SubmodelElement sourceSubmodelElement, bool shallowCopy = false)
+        public static ISubmodelElement? ConvertFromV20(this ISubmodelElement? submodelElement, AdminShellV20.SubmodelElement sourceSubmodelElement, bool shallowCopy = false)
         {
-            ISubmodelElement outputSubmodelElement = null;
+            ISubmodelElement? outputSubmodelElement = null;
             if (sourceSubmodelElement != null)
             {
                 if (sourceSubmodelElement is AdminShellV20.SubmodelElementCollection collection)
@@ -411,7 +412,7 @@ namespace Extensions
                 else if (sourceSubmodelElement is AdminShellV20.Blob blob)
                 {
                     var newBlob = new Blob("");
-                    outputSubmodelElement = newBlob.ConvertFromV20(blob);
+                    outputSubmodelElement = ExtendBlob.ConvertFromV20(newBlob, blob);
                 }
                 else if (sourceSubmodelElement is AdminShellV20.ReferenceElement sourceReferenceElement)
                 {
@@ -442,7 +443,7 @@ namespace Extensions
                 {
                     var entityType = Stringification.EntityTypeFromString(sourceEntity.entityType);
                     var newEntity = new Entity(entityType ?? EntityType.CoManagedEntity);
-                    outputSubmodelElement = newEntity.ConvertFromV20(sourceEntity);
+                    outputSubmodelElement = ExtendEntity.ConvertFromV20(newEntity, sourceEntity);
                 }
                 else if (sourceSubmodelElement is AdminShellV20.Operation sourceOperation)
                 {
@@ -456,7 +457,7 @@ namespace Extensions
                         {
                             if (inputVariable.value.submodelElement != null)
                             {
-                                ISubmodelElement newSubmodelElement = null;
+                                ISubmodelElement? newSubmodelElement = null;
                                 newSubmodelElement = newSubmodelElement.ConvertFromV20(inputVariable.value.submodelElement);
                                 var newOpVariable = new OperationVariable(newSubmodelElement);
                                 newInputVariables.Add(newOpVariable);
@@ -469,7 +470,7 @@ namespace Extensions
                         {
                             if (outputVariable.value.submodelElement != null)
                             {
-                                ISubmodelElement newSubmodelElement = null;
+                                ISubmodelElement? newSubmodelElement = null;
                                 newSubmodelElement = newSubmodelElement.ConvertFromV20(outputVariable.value.submodelElement);
                                 var newOpVariable = new OperationVariable(newSubmodelElement);
                                 newOutputVariables.Add(newOpVariable);
@@ -483,7 +484,7 @@ namespace Extensions
                         {
                             if (inOutVariable.value.submodelElement != null)
                             {
-                                ISubmodelElement newSubmodelElement = null;
+                                ISubmodelElement? newSubmodelElement = null;
                                 newSubmodelElement = newSubmodelElement.ConvertFromV20(inOutVariable.value.submodelElement);
                                 var newOpVariable = new OperationVariable(newSubmodelElement);
                                 newInOutVariables.Add(newOpVariable);
@@ -507,7 +508,7 @@ namespace Extensions
             return outputSubmodelElement;
         }
 
-        private static void BasicConversionFromV20(this ISubmodelElement submodelElement, AdminShellV20.SubmodelElement sourceSubmodelElement)
+        private static void BasicConversionFromV20(this ISubmodelElement? submodelElement, AdminShellV20.SubmodelElement sourceSubmodelElement)
         {
             if (!string.IsNullOrEmpty(sourceSubmodelElement.idShort))
                 submodelElement.IdShort = sourceSubmodelElement.idShort;

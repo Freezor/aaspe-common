@@ -29,7 +29,7 @@ namespace Extensions
             file.Value = sourceFile.value;
             return file;
         }
-        public static File ConvertFromV20(this File file, AasxCompatibilityModels.AdminShellV20.File sourceFile)
+        public static File? ConvertFromV20(this File? file, AasxCompatibilityModels.AdminShellV20.File sourceFile)
         {
             file.ContentType = sourceFile.mimeType;
             file.Value = sourceFile.value;

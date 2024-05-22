@@ -6,127 +6,98 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 
 This source code may use other Open Source software components (see LICENSE.txt).
 */
-using AdminShellNS;
+
 using AdminShellNS.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Extensions;
 
-namespace Extensions
+namespace aaspe_common.AasxCsharpLibrary.Extensions;
+
+public static class ExtendAnnotatedRelationshipElement
 {
-    public static class ExtendAnnotatedRelationshipElement
+    #region AasxPackageExplorer
+
+    public static void Add(this AnnotatedRelationshipElement annotatedRelationshipElement, ISubmodelElement submodelElement)
     {
-        #region AasxPackageExplorer
+        annotatedRelationshipElement.Annotations ??= new List<IDataElement>();
 
-        public static void Add(this AnnotatedRelationshipElement annotatedRelationshipElement, ISubmodelElement submodelElement)
-        {
-            if (annotatedRelationshipElement != null)
-            {
-                annotatedRelationshipElement.Annotations ??= new();
+        submodelElement.Parent = annotatedRelationshipElement;
 
-                submodelElement.Parent = annotatedRelationshipElement;
-
-                annotatedRelationshipElement.Annotations.Add((IDataElement)submodelElement);
-            }
-        }
-
-        public static void Remove(this AnnotatedRelationshipElement annotatedRelationshipElement, ISubmodelElement submodelElement)
-        {
-            if (annotatedRelationshipElement != null)
-            {
-                if (annotatedRelationshipElement.Annotations != null)
-                {
-                    annotatedRelationshipElement.Annotations.Remove((IDataElement)submodelElement);
-                }
-            }
-        }
-
-        public static object AddChild(
-            this AnnotatedRelationshipElement annotatedRelationshipElement,
-            ISubmodelElement childSubmodelElement,
-            EnumerationPlacmentBase placement = null)
-        {
-            if (childSubmodelElement == null || childSubmodelElement is not IDataElement)
-                return null;
-
-            annotatedRelationshipElement.Annotations ??= new();
-
-            if (childSubmodelElement != null)
-                childSubmodelElement.Parent = annotatedRelationshipElement;
-
-            annotatedRelationshipElement.Annotations.Add((IDataElement)childSubmodelElement);
-            return childSubmodelElement;
-        }
-
-        #endregion
-        public static AnnotatedRelationshipElement ConvertAnnotationsFromV20(this AnnotatedRelationshipElement annotatedRelationshipElement, AasxCompatibilityModels.AdminShellV20.AnnotatedRelationshipElement sourceAnnotedRelElement)
-        {
-            if (sourceAnnotedRelElement == null)
-            {
-                return null;
-            }
-
-            if (!sourceAnnotedRelElement.annotations.IsNullOrEmpty())
-            {
-                annotatedRelationshipElement.Annotations ??= new List<IDataElement>();
-                foreach (var submodelElementWrapper in sourceAnnotedRelElement.annotations)
-                {
-                    var sourceSubmodelElement = submodelElementWrapper.submodelElement;
-                    ISubmodelElement outputSubmodelElement = null;
-                    if (sourceSubmodelElement != null)
-                    {
-                        outputSubmodelElement = outputSubmodelElement.ConvertFromV20(sourceSubmodelElement);
-                    }
-                    annotatedRelationshipElement.Annotations.Add((IDataElement)outputSubmodelElement);
-                }
-            }
-
-            return annotatedRelationshipElement;
-        }
-
-        public static T FindFirstIdShortAs<T>(this AnnotatedRelationshipElement annotedRelationshipElement, string idShort) where T : ISubmodelElement
-        {
-
-            var submodelElements = annotedRelationshipElement.Annotations.Where(sme => sme != null && sme is T && sme.IdShort.Equals(idShort, StringComparison.OrdinalIgnoreCase));
-
-            if (submodelElements.Any())
-            {
-                return (T)submodelElements.First();
-            }
-
-            return default;
-        }
-
-        public static AnnotatedRelationshipElement Set(this AnnotatedRelationshipElement elem,
-            Reference first, Reference second)
-        {
-            elem.First = first;
-            elem.Second = second;
-            return elem;
-        }
-
-        public static AnnotatedRelationshipElement UpdateFrom(
-            this AnnotatedRelationshipElement elem, ISubmodelElement source)
-        {
-            if (source == null)
-                return elem;
-
-            ((ISubmodelElement)elem).UpdateFrom(source);
-
-            if (source is ReferenceElement srcRef)
-            {
-                if (srcRef.Value != null)
-                    elem.First = srcRef.Value.Copy();
-            }
-
-            if (source is RelationshipElement srcRel)
-            {
-                if (srcRel.First != null)
-                    elem.First = srcRel.First.Copy();
-            }
-
-            return elem;
-        }
-
+        annotatedRelationshipElement.Annotations.Add((IDataElement)submodelElement);
     }
+
+    public static void Remove(this AnnotatedRelationshipElement annotatedRelationshipElement, ISubmodelElement submodelElement)
+    {
+        annotatedRelationshipElement.Annotations?.Remove((IDataElement)submodelElement);
+    }
+
+    public static object? AddChild(
+        this AnnotatedRelationshipElement annotatedRelationshipElement,
+        ISubmodelElement? childSubmodelElement)
+    {
+        if (childSubmodelElement is not IDataElement element)
+            return null;
+
+        annotatedRelationshipElement.Annotations ??= new List<IDataElement>();
+
+        element.Parent = annotatedRelationshipElement;
+
+        annotatedRelationshipElement.Annotations.Add(element);
+        return element;
+    }
+
+    #endregion
+    public static AnnotatedRelationshipElement? ConvertAnnotationsFromV20(this AnnotatedRelationshipElement? annotatedRelationshipElement, AasxCompatibilityModels.AdminShellV20.AnnotatedRelationshipElement sourceAnnotedRelElement)
+    {
+        if (sourceAnnotedRelElement.annotations.IsNullOrEmpty()) return annotatedRelationshipElement;
+        annotatedRelationshipElement.Annotations ??= new List<IDataElement>();
+        foreach (var outputSubmodelElement in from submodelElementWrapper in sourceAnnotedRelElement.annotations select submodelElementWrapper.submodelElement into sourceSubmodelElement let outputSubmodelElement = (ISubmodelElement?) null select outputSubmodelElement.ConvertFromV20(sourceSubmodelElement))
+        {
+            annotatedRelationshipElement.Annotations.Add((IDataElement)outputSubmodelElement);
+        }
+
+        return annotatedRelationshipElement;
+    }
+
+    public static T? FindFirstIdShortAs<T>(this AnnotatedRelationshipElement annotatedRelationshipElement, string idShort) where T : ISubmodelElement
+    {
+
+        var submodelElements = annotatedRelationshipElement.Annotations.Where(sme => sme.IdShort.Equals(idShort, StringComparison.OrdinalIgnoreCase));
+
+        if (submodelElements.Any())
+        {
+            return (T)submodelElements.First();
+        }
+
+        return default;
+    }
+
+    public static AnnotatedRelationshipElement Set(this AnnotatedRelationshipElement elem,
+        Reference first, Reference second)
+    {
+        elem.First = first;
+        elem.Second = second;
+        return elem;
+    }
+
+    public static AnnotatedRelationshipElement UpdateFrom(
+        this AnnotatedRelationshipElement elem, ISubmodelElement source)
+    {
+        ((ISubmodelElement)elem).UpdateFrom(source);
+
+        switch (source)
+        {
+            case ReferenceElement {Value: not null} srcRef:
+                elem.First = srcRef.Value.Copy();
+                break;
+            case RelationshipElement srcRel:
+            {
+                elem.First = srcRel.First.Copy();
+
+                break;
+            }
+        }
+
+        return elem;
+    }
+
 }
