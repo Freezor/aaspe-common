@@ -8,7 +8,6 @@ This source code may use other Open Source software components (see LICENSE.txt)
 */
 
 using AdminShellNS;
-using Aas = AasCore.Aas3_0;
 
 namespace aaspe_common.AasxCsharpLibrary.Extensions;
 

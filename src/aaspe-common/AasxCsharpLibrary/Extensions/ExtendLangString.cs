@@ -19,8 +19,7 @@ public static class ExtendLangString
         where T : IAbstractLangString
     {
         // start
-        if (defaultLang == null)
-            defaultLang = LANG_DEFAULT;
+        defaultLang ??= LANG_DEFAULT;
         defaultLang = defaultLang.Trim().ToLower();
         string res = null;
 

@@ -902,11 +902,13 @@ public static class ExtendEnvironment
         }
 
         // copy the CDs
-        if (!copyCD || srcSub.SubmodelElements == null) return dstSubRef;
+        if (!copyCD || srcSub.SubmodelElements == null)
         {
-            foreach (var smw in srcSub.SubmodelElements)
-                environment.CopyConceptDescriptionsFrom(srcEnv, smw, shallowCopy);
+            return dstSubRef;
         }
+
+        foreach (var smw in srcSub.SubmodelElements)
+                environment.CopyConceptDescriptionsFrom(srcEnv, smw, shallowCopy);
 
         // give back
         return dstSubRef;
