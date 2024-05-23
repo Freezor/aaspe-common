@@ -76,23 +76,17 @@ public static class ExtendAnnotatedRelationshipElement
         return elem;
     }
 
-    public static AnnotatedRelationshipElement UpdateFrom(
+    public static AnnotatedRelationshipElement? UpdateFrom(
         this AnnotatedRelationshipElement elem, ISubmodelElement? source)
     {
         ((ISubmodelElement)elem).UpdateFrom(source);
 
-        switch (source)
+        elem.First = source switch
         {
-            case ReferenceElement {Value: not null} srcRef:
-                elem.First = srcRef.Value.Copy();
-                break;
-            case RelationshipElement srcRel:
-            {
-                elem.First = srcRel.First.Copy();
-
-                break;
-            }
-        }
+            ReferenceElement {Value: not null} srcRef => srcRef.Value.Copy(),
+            RelationshipElement srcRel => srcRel.First.Copy(),
+            _ => elem.First
+        };
 
         return elem;
     }

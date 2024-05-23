@@ -40,7 +40,7 @@ public static class ExtendProperty
             return null;
 
         // type?
-        if (!ExtendDataElement.ValueTypes_Number.Contains(prop.ValueType))
+        if (!ExtendDataElement.ValueTypesNumber.Contains(prop.ValueType))
             return null;
 
         // try convert

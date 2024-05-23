@@ -11,7 +11,7 @@ namespace aaspe_common.AasxCsharpLibrary.Extensions;
 
 public static class ExtendDataElement
 {
-    public static DataTypeDefXsd[] ValueTypes_Number =
+    public static readonly DataTypeDefXsd[] ValueTypesNumber =
     {
         DataTypeDefXsd.Decimal, DataTypeDefXsd.Double, DataTypeDefXsd.Float,
         DataTypeDefXsd.Integer, DataTypeDefXsd.Long, DataTypeDefXsd.Int, DataTypeDefXsd.Short,

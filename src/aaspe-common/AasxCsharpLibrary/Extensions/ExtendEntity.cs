@@ -9,86 +9,86 @@ This source code may use other Open Source software components (see LICENSE.txt)
 
 using AdminShellNS;
 
-namespace aaspe_common.AasxCsharpLibrary.Extensions
+namespace aaspe_common.AasxCsharpLibrary.Extensions;
+
+public static class ExtendEntity
 {
-    public static class ExtendEntity
+    #region AasxPackageExplorer
+
+    public static void Add(this Entity entity, ISubmodelElement submodelElement)
     {
-        #region AasxPackageExplorer
+        entity.Statements ??= new List<ISubmodelElement>();
 
-        public static void Add(this Entity entity, ISubmodelElement submodelElement)
+        submodelElement.Parent = entity;
+
+        entity.Statements.Add(submodelElement);
+    }
+
+    public static void Remove(this Entity entity, ISubmodelElement submodelElement)
+    {
+        entity.Statements?.Remove(submodelElement);
+    }
+
+    public static object? AddChild(this Entity entity, ISubmodelElement? childSubmodelElement, EnumerationPlacmentBase? placement = null)
+    {
+        if (childSubmodelElement == null)
+            return null;
+        entity.Statements ??= new List<ISubmodelElement>();
+        childSubmodelElement.Parent = entity;
+        entity.Statements.Add(childSubmodelElement);
+        return childSubmodelElement;
+    }
+
+    #endregion
+
+    public static Entity? ConvertFromV20(this Entity? entity, AasxCompatibilityModels.AdminShellV20.Entity sourceEntity)
+    {
+        if (!sourceEntity.statements.IsNullOrEmpty())
         {
-            entity.Statements ??= new List<ISubmodelElement>();
+            if (entity != null) entity.Statements ??= new List<ISubmodelElement>();
 
-            submodelElement.Parent = entity;
-
-            entity.Statements.Add(submodelElement);
-        }
-
-        public static void Remove(this Entity entity, ISubmodelElement submodelElement)
-        {
-            entity.Statements?.Remove(submodelElement);
-        }
-
-        public static object? AddChild(this Entity entity, ISubmodelElement? childSubmodelElement, EnumerationPlacmentBase? placement = null)
-        {
-            if (childSubmodelElement == null)
-                return null;
-            if (entity.Statements == null)
-                entity.Statements = new List<ISubmodelElement>();
-            childSubmodelElement.Parent = entity;
-            entity.Statements.Add(childSubmodelElement);
-            return childSubmodelElement;
-        }
-
-        #endregion
-
-        public static Entity? ConvertFromV20(this Entity? entity, AasxCompatibilityModels.AdminShellV20.Entity sourceEntity)
-        {
-            if (!sourceEntity.statements.IsNullOrEmpty())
+            foreach (var outputSubmodelElement in from submodelElementWrapper in sourceEntity.statements select submodelElementWrapper.submodelElement into sourceSubmodelElement let outputSubmodelElement = (ISubmodelElement?) null select ExtendISubmodelElement.ConvertFromV20(sourceSubmodelElement))
             {
-                if (entity != null) entity.Statements ??= new List<ISubmodelElement>();
-
-                foreach (var outputSubmodelElement in from submodelElementWrapper in sourceEntity.statements select submodelElementWrapper.submodelElement into sourceSubmodelElement let outputSubmodelElement = (ISubmodelElement?) null select ExtendISubmodelElement.ConvertFromV20(sourceSubmodelElement))
-                {
-                    entity.Statements.Add(outputSubmodelElement);
-                }
+                entity.Statements.Add(outputSubmodelElement);
             }
+        }
 
-            if (sourceEntity.assetRef != null)
-            {
-                //TODO (jtikekar, 0000-00-00): whether to convert to Global or specific asset id
-                var assetRef = ExtensionsUtil.ConvertReferenceFromV20(sourceEntity.assetRef, ReferenceTypes.ExternalReference);
-                if (assetRef != null)
-                {
-                    entity.GlobalAssetId = assetRef.GetAsIdentifier();
-                }
-            }
-
+        if (sourceEntity.assetRef == null)
+        {
             return entity;
         }
 
-        public static T FindFirstIdShortAs<T>(this Entity entity, string idShort) where T : ISubmodelElement
+        //TODO (jtikekar, 0000-00-00): whether to convert to Global or specific asset id
+        var assetRef = ExtensionsUtil.ConvertReferenceFromV20(sourceEntity.assetRef, ReferenceTypes.ExternalReference);
+        if (assetRef != null)
         {
-            var submodelElements = entity.Statements.Where(sme => (sme != null) && (sme is T) && sme.IdShort.Equals(idShort, StringComparison.OrdinalIgnoreCase));
-
-            if (submodelElements.Any())
-            {
-                return (T) submodelElements.First();
-            }
-
-            return default;
+            entity.GlobalAssetId = assetRef.GetAsIdentifier();
         }
 
-        public static T? CreateSMEForCD<T>(
-            this Entity ent,
-            ConceptDescription? conceptDescription, string category = null, string idShort = null,
-            string idxTemplate = null, int maxNum = 999, bool addSme = false, bool isTemplate = false)
-            where T : ISubmodelElement
+        return entity;
+    }
+
+    public static T FindFirstIdShortAs<T>(this Entity entity, string idShort) where T : ISubmodelElement
+    {
+        var submodelElements = entity.Statements.Where(sme => sme is T && sme.IdShort.Equals(idShort, StringComparison.OrdinalIgnoreCase));
+
+        if (submodelElements.Any())
         {
-            if (ent.Statements == null)
-                ent.Statements = new List<ISubmodelElement>();
-            return ent.Statements.CreateSMEForCD<T>(
-                conceptDescription, category, idShort, idxTemplate, maxNum, addSme);
+            return (T) submodelElements.First();
         }
+
+        return default;
+    }
+
+    public static T? CreateSMEForCD<T>(
+        this Entity ent,
+        ConceptDescription? conceptDescription, string category = null, string idShort = null,
+        string idxTemplate = null, int maxNum = 999, bool addSme = false, bool isTemplate = false)
+        where T : ISubmodelElement
+    {
+        if (ent.Statements == null)
+            ent.Statements = new List<ISubmodelElement>();
+        return ent.Statements.CreateSMEForCD<T>(
+            conceptDescription, category, idShort, idxTemplate, maxNum, addSme);
     }
 }

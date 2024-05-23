@@ -67,7 +67,7 @@ public static class ExtendConceptDescription
         return Tuple.Create(caption, info);
     }
 
-    private static string GetDefaultShortName(this IConceptDescription conceptDescription, string? defaultLang = null)
+    public static string GetDefaultShortName(this IConceptDescription conceptDescription, string? defaultLang = null)
     {
         return conceptDescription.GetIEC61360()?
             .ShortName?.GetDefaultString(defaultLang) ?? string.Empty;
