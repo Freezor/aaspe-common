@@ -10,7 +10,7 @@ namespace aaspe_common.AasxCsharpLibrary.Extensions;
 
 public enum MatchMode
 {
-    Strict,  //may be not needed in future, as no local flag in V3
+    Strict,  //may be not needed in the future, as no local flag in V3
     Relaxed, //should be as default
     Identification
 }
