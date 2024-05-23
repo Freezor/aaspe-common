@@ -11,6 +11,6 @@ namespace AdminShellNS
     public class EnumerationPlacmentOperationVariable : EnumerationPlacmentBase
     {
         public OperationVariableDirection Direction;
-        public OperationVariable OperationVariable;
+        public OperationVariable? OperationVariable;
     }
 }

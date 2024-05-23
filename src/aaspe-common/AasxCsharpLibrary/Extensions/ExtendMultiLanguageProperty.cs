@@ -6,136 +6,135 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 
 This source code may use other Open Source software components (see LICENSE.txt).
 */
+
+using AasxCompatibilityModels;
 using AdminShellNS;
-using System;
-using System.Collections.Generic;
-using aaspe_common.AasxCsharpLibrary.Extensions;
 
-namespace Extensions
+namespace aaspe_common.AasxCsharpLibrary.Extensions;
+
+public static class ExtendMultiLanguageProperty
 {
-    public static class ExtendMultiLanguageProperty
+    #region AasxPackageExplorer
+
+    public static void ValueFromText(this MultiLanguageProperty multiLanguageProperty, string text, string? defaultLang)
     {
-        #region AasxPackageExplorer
+        multiLanguageProperty.Value ??= new List<ILangStringTextType>();
 
-        public static void ValueFromText(this MultiLanguageProperty multiLanguageProperty, string text, string? defaultLang)
+        multiLanguageProperty.Value.Add(new LangStringTextType(defaultLang == null ? "en" : defaultLang, text));
+    }
+
+    #endregion
+
+    public static string ValueAsText(this MultiLanguageProperty multiLanguageProperty, string? defaultLang = null)
+    {
+        return multiLanguageProperty.Value?.GetDefaultString(defaultLang) ?? string.Empty;
+    }
+
+    public static MultiLanguageProperty? ConvertFromV20(this MultiLanguageProperty? property, AdminShellV20.MultiLanguageProperty? sourceProperty)
+    {
+        if (sourceProperty == null)
         {
-            multiLanguageProperty.Value ??= new List<ILangStringTextType>();
-
-            multiLanguageProperty.Value.Add(new LangStringTextType(defaultLang == null ? "en" : defaultLang, text));
+            return null;
         }
 
-        #endregion
-
-        public static string ValueAsText(this MultiLanguageProperty multiLanguageProperty, string? defaultLang = null)
+        var keyList = new List<IKey>();
+        foreach (var refKey in sourceProperty.valueId.Keys)
         {
-            // dead-csharp off
-            //TODO (jtikekar, 0000-00-00): need to check/test again
-            //return "" + multiLanguageProperty.Value?.LangStrings.FirstOrDefault().Text;
-            // dead-csharp on
-            return "" + multiLanguageProperty.Value?.GetDefaultString(defaultLang);
+
+            var keyType = Stringification.KeyTypesFromString(refKey.type);
+            if (keyType != null)
+            {
+                keyList.Add(new Key((KeyTypes)keyType, refKey.value));
+            }
+            else
+            {
+                Console.WriteLine($"KeyType value not found for property {property?.IdShort}");
+            }
         }
 
-        public static MultiLanguageProperty? ConvertFromV20(this MultiLanguageProperty? property, AasxCompatibilityModels.AdminShellV20.MultiLanguageProperty sourceProperty)
+        if (property != null)
         {
-            if (sourceProperty == null)
+            property.ValueId = new Reference(ReferenceTypes.ExternalReference, keyList);
+
+            if (sourceProperty.value.IsEmpty)
             {
-                return null;
+                return property;
             }
 
-            if (sourceProperty.valueId != null)
-            {
-                var keyList = new List<IKey>();
-                foreach (var refKey in sourceProperty.valueId.Keys)
-                {
+            var newLangStrings = new List<ILangStringTextType>();
 
-                    var keyType = Stringification.KeyTypesFromString(refKey.type);
-                    if (keyType != null)
-                    {
-                        keyList.Add(new Key((KeyTypes)keyType, refKey.value));
-                    }
-                    else
-                    {
-                        Console.WriteLine($"KeyType value not found for property {property.IdShort}");
-                    }
-                }
-                property.ValueId = new Reference(ReferenceTypes.ExternalReference, keyList);
-            }
+            List<ILangStringTextType> newLangStringSet = new(newLangStrings);
 
-            if (sourceProperty.value != null && !sourceProperty.value.IsEmpty)
-            {
-                var newLangStrings = new List<ILangStringTextType>();
-
-                List<ILangStringTextType> newLangStringSet = new(newLangStrings);
-
-                property.Value = newLangStringSet.ConvertFromV20(sourceProperty.value);
-            }
+            property.Value = newLangStringSet.ConvertFromV20(sourceProperty.value);
 
             return property;
-
         }
 
-        public static MultiLanguageProperty UpdateFrom(
-            this MultiLanguageProperty elem, ISubmodelElement? source)
+        return null;
+    }
+
+    public static MultiLanguageProperty UpdateFrom(
+        this MultiLanguageProperty elem, ISubmodelElement? source)
+    {
+        if (source == null)
+            return elem;
+
+        ((ISubmodelElement)elem).UpdateFrom(source);
+
+        switch (source)
         {
-            if (source == null)
-                return elem;
-
-            ((ISubmodelElement)elem).UpdateFrom(source);
-
-            if (source is Property srcProp)
+            case Property srcProp:
             {
                 elem.Value = new List<ILangStringTextType> {
                     new LangStringTextType(AdminShellUtil.GetDefaultLngIso639(), srcProp.Value) };
                 if (srcProp.ValueId != null)
                     elem.ValueId = srcProp.ValueId.Copy();
+                break;
             }
-
-            if (source is MultiLanguageProperty srcMlp)
+            case MultiLanguageProperty srcMlp:
             {
                 if (srcMlp.Value != null)
-                    elem.Value = ExtendISubmodelElement.Copy(srcMlp.Value);
+                    elem.Value = srcMlp.Value.Copy();
                 if (srcMlp.ValueId != null)
                     elem.ValueId = srcMlp.ValueId.Copy();
+                break;
             }
-
-            if (source is AasCore.Aas3_0.Range srcRng)
+            case AasCore.Aas3_0.Range srcRng:
             {
                 if (srcRng.Min != null)
                     elem.Value = new List<ILangStringTextType> {
                         new LangStringTextType(AdminShellUtil.GetDefaultLngIso639(), srcRng.Min) };
+                break;
             }
-
-            if (source is File srcFile)
-            {
+            case File srcFile:
                 elem.Value = new List<ILangStringTextType> {
                     new LangStringTextType(AdminShellUtil.GetDefaultLngIso639(), srcFile.Value) };
-            }
-
-            return elem;
+                break;
         }
 
-        public static MultiLanguageProperty Set(this MultiLanguageProperty mlp,
-            List<ILangStringTextType> ls)
-        {
-            mlp.Value = ls;
+        return elem;
+    }
+
+    public static MultiLanguageProperty Set(this MultiLanguageProperty mlp,
+        List<ILangStringTextType> ls)
+    {
+        mlp.Value = ls;
+        return mlp;
+    }
+
+    public static MultiLanguageProperty Set(this MultiLanguageProperty mlp,
+        LangStringTextType? ls)
+    {
+        if (ls == null)
             return mlp;
-        }
+        mlp.Value ??= new List<ILangStringTextType>();
+        mlp.Value.Set(ls.Language, ls.Text);
+        return mlp;
+    }
 
-        public static MultiLanguageProperty Set(this MultiLanguageProperty mlp,
-            LangStringTextType ls)
-        {
-            if (ls == null)
-                return mlp;
-            if (mlp.Value == null)
-                mlp.Value = new List<ILangStringTextType>();
-            mlp.Value.Set(ls.Language, ls.Text);
-            return mlp;
-        }
-
-        public static MultiLanguageProperty Set(this MultiLanguageProperty mlp,
-            string lang, string str)
-        {
-            return mlp.Set(new LangStringTextType(lang, str));
-        }
+    public static MultiLanguageProperty Set(this MultiLanguageProperty mlp,
+        string lang, string str)
+    {
+        return mlp.Set(new LangStringTextType(lang, str));
     }
 }

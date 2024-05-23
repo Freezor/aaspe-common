@@ -8,7 +8,6 @@ This source code may use other Open Source software components (see LICENSE.txt)
 */
 
 using AdminShellNS;
-using Extensions;
 
 namespace aaspe_common.AasxCsharpLibrary.Extensions
 {
@@ -30,7 +29,7 @@ namespace aaspe_common.AasxCsharpLibrary.Extensions
             entity.Statements?.Remove(submodelElement);
         }
 
-        public static object? AddChild(this Entity entity, ISubmodelElement? childSubmodelElement, EnumerationPlacmentBase placement = null)
+        public static object? AddChild(this Entity entity, ISubmodelElement? childSubmodelElement, EnumerationPlacmentBase? placement = null)
         {
             if (childSubmodelElement == null)
                 return null;

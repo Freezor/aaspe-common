@@ -10,7 +10,6 @@ This source code may use other Open Source software components (see LICENSE.txt)
 using AasxCompatibilityModels;
 using AdminShellNS;
 using AdminShellNS.Exceptions;
-using Extensions;
 
 namespace aaspe_common.AasxCsharpLibrary.Extensions;
 
@@ -32,12 +31,12 @@ public static class ExtendISubmodelElement
         return res;
     }
 
-    public static object? AddChild(this ISubmodelElement submodelElement, ISubmodelElement? childSubmodelElement, EnumerationPlacmentBase placement = null)
+    public static object? AddChild(this ISubmodelElement submodelElement, ISubmodelElement? childSubmodelElement, EnumerationPlacmentBase? placement = null)
     {
         return submodelElement switch
         {
             AnnotatedRelationshipElement annotatedRelationshipElement => annotatedRelationshipElement.AddChild(childSubmodelElement),
-            SubmodelElementCollection submodelElementCollection => ExtendSubmodelElementCollection.AddChild(submodelElementCollection, childSubmodelElement, placement),
+            SubmodelElementCollection submodelElementCollection => ExtendSubmodelElementCollection.AddChild(submodelElementCollection, childSubmodelElement),
             SubmodelElementList submodelElementList => ExtendSubmodelElementList.AddChild(submodelElementList, childSubmodelElement, placement),
             Operation operation => ExtendOperation.AddChild(operation, childSubmodelElement, placement),
             Entity entity => entity.AddChild(childSubmodelElement, placement),
@@ -628,8 +627,8 @@ public static class ExtendISubmodelElement
             createDefault ? destCD : null, setDefault, matchMode);
     }
 
-    public static void CopyManySMEbyCopy<T>(this List<ISubmodelElement> submodelElements, Key destSemanticId,
-        List<ISubmodelElement> sourceSmc, Key sourceSemanticId,
+    public static void CopyManySMEbyCopy<T>(this List<ISubmodelElement> submodelElements, Key? destSemanticId,
+        List<ISubmodelElement> sourceSmc, Key? sourceSemanticId,
         ConceptDescription? createDefault = null, Action<T?>? setDefault = null,
         MatchMode matchMode = MatchMode.Relaxed) where T : ISubmodelElement
     {
@@ -651,7 +650,7 @@ public static class ExtendISubmodelElement
             // make same things sure
             dst.IdShort = src.IdShort;
             dst.Category = src.Category;
-            dst.SemanticId = new Reference(ReferenceTypes.ModelReference, new List<IKey>() {destSemanticId});
+            dst.SemanticId = new Reference(ReferenceTypes.ModelReference, new List<IKey?>() {destSemanticId});
 
             submodelElements.Add(dst);
         }
@@ -689,7 +688,7 @@ public static class ExtendISubmodelElement
             createDefault ? destCD : null, setDefault, matchMode, idShort, addSme);
     }
 
-    public static T? CopyOneSMEbyCopy<T>(this List<ISubmodelElement> submodelElements, Key destSemanticId,
+    public static T? CopyOneSMEbyCopy<T>(this List<ISubmodelElement> submodelElements, Key? destSemanticId,
         List<ISubmodelElement> sourceSmc, Key?[]? sourceSemanticId,
         ConceptDescription? createDefault = null, Action<T?> setDefault = null,
         MatchMode matchMode = MatchMode.Relaxed,
@@ -730,7 +729,7 @@ public static class ExtendISubmodelElement
         // make same things sure
         dst.IdShort = src.IdShort;
         dst.Category = src.Category;
-        dst.SemanticId = new Reference(ReferenceTypes.ModelReference, new List<IKey>() {destSemanticId});
+        dst.SemanticId = new Reference(ReferenceTypes.ModelReference, new List<IKey?>() {destSemanticId});
 
         if (addSme)
             submodelElements.Add(dst);
@@ -885,7 +884,7 @@ public static class ExtendISubmodelElement
     }
 
     public static IEnumerable<T> FindAllSemanticIdAs<T>(this List<ISubmodelElement> submodelElements,
-        IKey semId, MatchMode matchMode = MatchMode.Strict)
+        IKey? semId, MatchMode matchMode = MatchMode.Strict)
         where T : ISubmodelElement
     {
         if (submodelElements.IsNullOrEmpty())
@@ -909,7 +908,7 @@ public static class ExtendISubmodelElement
     }
 
     public static T? FindFirstSemanticIdAs<T>(this List<ISubmodelElement> submodelElements,
-        IKey semId, MatchMode matchMode = MatchMode.Strict)
+        IKey? semId, MatchMode matchMode = MatchMode.Strict)
         where T : ISubmodelElement
     {
         return submodelElements.FindAllSemanticIdAs<T>(semId, matchMode).FirstOrDefault<T>();
@@ -924,7 +923,7 @@ public static class ExtendISubmodelElement
 
     public static List<ISubmodelElement>? GetChildListFromFirstSemanticId(
         this List<ISubmodelElement> submodelElements,
-        IKey semKey, MatchMode matchMode = MatchMode.Strict)
+        IKey? semKey, MatchMode matchMode = MatchMode.Strict)
     {
         return FindFirstSemanticIdAs<ISubmodelElement>(submodelElements, semKey, matchMode)?.GetChildrenAsList();
     }
@@ -938,7 +937,7 @@ public static class ExtendISubmodelElement
 
     public static IEnumerable<List<ISubmodelElement>?> GetChildListsFromAllSemanticId(
         this List<ISubmodelElement> submodelElements,
-        IKey semKey, MatchMode matchMode = MatchMode.Strict)
+        IKey? semKey, MatchMode matchMode = MatchMode.Strict)
     {
         return FindAllSemanticIdAs<ISubmodelElement>(submodelElements, semKey, matchMode).Select(child => child.GetChildrenAsList()?.ToList());
     }
@@ -963,7 +962,7 @@ public static class ExtendISubmodelElement
 
     public static void RecurseOnReferables(
         this IEnumerable<ISubmodelElement> submodelElements, object state, List<IReferable> parents,
-        Func<object, List<IReferable>, IReferable, bool>? lambda)
+        Func<object, List<IReferable>?, IReferable?, bool>? lambda)
     {
         if (lambda == null)
             return;
@@ -1196,7 +1195,7 @@ public static class ExtendISubmodelElement
     }
 
     public static IEnumerable<ISubmodelElement> FindAllSemanticId(
-        this List<ISubmodelElement> submodelElements, IKey semId,
+        this List<ISubmodelElement> submodelElements, IKey? semId,
         Type[] allowedTypes = null,
         MatchMode matchMode = MatchMode.Strict)
     {
@@ -1217,7 +1216,7 @@ public static class ExtendISubmodelElement
 
     public static ISubmodelElement FindFirstSemanticId(
         this List<ISubmodelElement> submodelElements,
-        IKey semId, Type[] allowedTypes = null, MatchMode matchMode = MatchMode.Strict)
+        IKey? semId, Type[] allowedTypes = null, MatchMode matchMode = MatchMode.Strict)
     {
         return submodelElements.FindAllSemanticId(semId, allowedTypes, matchMode)?.FirstOrDefault<ISubmodelElement>();
     }

@@ -6,153 +6,139 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 
 This source code may use other Open Source software components (see LICENSE.txt).
 */
+
 using AdminShellNS;
-using System.Collections.Generic;
-using System.Linq;
-using aaspe_common.AasxCsharpLibrary.Extensions;
 
-namespace Extensions
+namespace aaspe_common.AasxCsharpLibrary.Extensions;
+
+public static class ExtendOperation
 {
-    public static class ExtendOperation
+    #region AasxPackageExplorer
+
+    public static object? AddChild(this IOperation operation, ISubmodelElement? childSubmodelElement, EnumerationPlacmentBase? placement = null)
     {
-        #region AasxPackageExplorer
+        // not enough information to select list of children?
+        if (childSubmodelElement == null || placement is not EnumerationPlacmentOperationVariable pl)
+            return null;
 
-        public static object? AddChild(this IOperation operation, ISubmodelElement? childSubmodelElement, EnumerationPlacmentBase placement = null)
+        // ok, use information
+        var ov = new OperationVariable(childSubmodelElement);
+
+        childSubmodelElement.Parent = operation;
+
+        switch (pl.Direction)
         {
-            // not enough information to select list of children?
-            var pl = placement as EnumerationPlacmentOperationVariable;
-            if (childSubmodelElement == null || pl == null)
-                return null;
-
-            // ok, use information
-            var ov = new OperationVariable(childSubmodelElement);
-
-            if (childSubmodelElement != null)
-                childSubmodelElement.Parent = operation;
-
-            if (pl.Direction == OperationVariableDirection.In)
-            {
+            case OperationVariableDirection.In:
                 operation.InputVariables ??= new List<IOperationVariable>();
                 operation.InputVariables.Add(ov);
-            }
-
-            if (pl.Direction == OperationVariableDirection.Out)
-            {
+                break;
+            case OperationVariableDirection.Out:
                 operation.OutputVariables ??= new List<IOperationVariable>();
                 operation.OutputVariables.Add(ov);
-            }
-
-            if (pl.Direction == OperationVariableDirection.InOut)
-            {
+                break;
+            case OperationVariableDirection.InOut:
                 operation.InoutputVariables ??= new List<IOperationVariable>();
                 operation.InoutputVariables.Add(ov);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        return ov;
+    }
+
+    public static EnumerationPlacmentBase? GetChildrenPlacement(this IOperation operation, ISubmodelElement? child)
+    {
+        // trivial
+        if (child == null)
+            return null;
+
+        // search
+        OperationVariableDirection? dir = null;
+        IOperationVariable? opvar = null;
+        if (operation.InputVariables != null)
+            foreach (var ov in operation.InputVariables.Where(ov => ov?.Value == child))
+            {
+                dir = OperationVariableDirection.In;
+                opvar = ov;
             }
 
-            return ov;
-        }
-
-        public static EnumerationPlacmentBase? GetChildrenPlacement(this IOperation operation, ISubmodelElement child)
-        {
-            // trivial
-            if (child == null)
-                return null;
-
-            // search
-            OperationVariableDirection? dir = null;
-            IOperationVariable opvar = null;
-            if (operation.InputVariables != null)
-                foreach (var ov in operation.InputVariables)
-                    if (ov?.Value == child)
-                    {
-                        dir = OperationVariableDirection.In;
-                        opvar = ov;
-                    }
-
-            if (operation.OutputVariables != null)
-                foreach (var ov in operation.OutputVariables)
-                    if (ov?.Value == child)
-                    {
-                        dir = OperationVariableDirection.Out;
-                        opvar = ov;
-                    }
-
-            if (operation.InoutputVariables != null)
-                foreach (var ov in operation.InoutputVariables)
-                    if (ov?.Value == child)
-                    {
-                        dir = OperationVariableDirection.InOut;
-                        opvar = ov;
-                    }
-
-            // found
-            if (!dir.HasValue)
-                return null;
-            return new EnumerationPlacmentOperationVariable()
+        if (operation.OutputVariables != null)
+            foreach (var ov in operation.OutputVariables.Where(ov => ov?.Value == child))
             {
-                Direction = dir.Value,
-                OperationVariable = opvar as OperationVariable
-            };
-        }
+                dir = OperationVariableDirection.Out;
+                opvar = ov;
+            }
 
-        public static List<IOperationVariable> GetVars(this IOperation op, OperationVariableDirection dir)
-        {
-            if (dir == OperationVariableDirection.In)
-                return op.InputVariables;
-            if (dir == OperationVariableDirection.Out)
-                return op.OutputVariables;
-            return op.InoutputVariables;
-        }
-
-        public static List<IOperationVariable> SetVars(
-            this IOperation op, OperationVariableDirection dir, List<IOperationVariable> value)
-        {
-            if (dir == OperationVariableDirection.In)
+        if (operation.InoutputVariables != null)
+            foreach (var ov in operation.InoutputVariables.Where(ov => ov?.Value == child))
             {
+                dir = OperationVariableDirection.InOut;
+                opvar = ov;
+            }
+
+        // found
+        if (!dir.HasValue)
+            return null;
+        return new EnumerationPlacmentOperationVariable()
+        {
+            Direction = dir.Value,
+            OperationVariable = opvar as OperationVariable
+        };
+    }
+
+    public static List<IOperationVariable>? GetVars(this IOperation op, OperationVariableDirection dir)
+    {
+        return dir switch
+        {
+            OperationVariableDirection.In => op.InputVariables,
+            OperationVariableDirection.Out => op.OutputVariables,
+            _ => op.InoutputVariables
+        };
+    }
+
+    public static List<IOperationVariable> SetVars(
+        this IOperation op, OperationVariableDirection dir, List<IOperationVariable> value)
+    {
+        switch (dir)
+        {
+            case OperationVariableDirection.In:
                 op.InputVariables = value;
                 return op.InputVariables;
-            }
-            if (dir == OperationVariableDirection.Out)
-            {
+            case OperationVariableDirection.Out:
                 op.OutputVariables = value;
                 return op.OutputVariables;
-            }
-
-            op.InoutputVariables = value;
-            return op.InoutputVariables;
+            case OperationVariableDirection.InOut:
+            default:
+                op.InoutputVariables = value;
+                return op.InoutputVariables;
         }
+    }
 
-        #endregion
+    #endregion
 
-        public static IOperation UpdateFrom(
-            this IOperation elem, ISubmodelElement? source)
-        {
-            if (source == null)
-                return elem;
-
-            ((ISubmodelElement)elem).UpdateFrom(source);
-
-            if (source is SubmodelElementCollection srcColl)
-            {
-                if (srcColl.Value != null)
-                {
-                    List<OperationVariable> operationVariables = ExtendISubmodelElement.Copy(srcColl.Value).Select(
-                        (isme) => new OperationVariable(isme)).ToList();
-                    elem.InputVariables = operationVariables.ConvertAll(op => (IOperationVariable)op);
-                }
-
-            }
-
-            if (source is SubmodelElementCollection srcList)
-            {
-                if (srcList.Value != null)
-                {
-                    List<OperationVariable> operationVariables = ExtendISubmodelElement.Copy(srcList.Value).Select(
-                        (isme) => new OperationVariable(isme)).ToList();
-                    elem.InputVariables = operationVariables.ConvertAll(op => (IOperationVariable)op);
-                }
-            }
-
+    public static IOperation UpdateFrom(
+        this IOperation elem, ISubmodelElement? source)
+    {
+        if (source == null)
             return elem;
+
+        ((ISubmodelElement)elem).UpdateFrom(source);
+
+        if (source is SubmodelElementCollection {Value: not null} srcColl)
+        {
+            var operationVariables = srcColl.Value.Copy().Select(
+                (isme) => new OperationVariable(isme)).ToList();
+            elem.InputVariables = operationVariables.ConvertAll(op => (IOperationVariable)op);
         }
+
+        if (source is not SubmodelElementCollection {Value: not null} srcList) return elem;
+        {
+            var operationVariables = ExtendISubmodelElement.Copy(srcList.Value).Select(
+                (isme) => new OperationVariable(isme)).ToList();
+            elem.InputVariables = operationVariables.ConvertAll(op => (IOperationVariable)op);
+        }
+
+        return elem;
     }
 }

@@ -8,7 +8,6 @@ This source code may use other Open Source software components (see LICENSE.txt)
 */
 
 using AasxCompatibilityModels;
-using Extensions;
 
 namespace aaspe_common.AasxCsharpLibrary.Extensions;
 

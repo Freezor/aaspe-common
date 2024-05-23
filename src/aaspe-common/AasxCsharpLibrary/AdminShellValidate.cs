@@ -86,12 +86,12 @@ namespace AdminShellNS
     public class AasValidationRecord
     {
         public AasValidationSeverity Severity = AasValidationSeverity.Hint;
-        public IReferable Source = null;
+        public IReferable? Source = null;
         public string Message = "";
 
         public Action Fix = null;
 
-        public AasValidationRecord(AasValidationSeverity Severity, IReferable Source,
+        public AasValidationRecord(AasValidationSeverity Severity, IReferable? Source,
             string Message, Action Fix = null)
         {
             this.Severity = Severity;

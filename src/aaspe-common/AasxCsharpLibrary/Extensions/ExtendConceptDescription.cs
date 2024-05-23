@@ -8,7 +8,6 @@ This source code may use other Open Source software components (see LICENSE.txt)
 */
 
 using AdminShellNS;
-using Extensions;
 
 namespace aaspe_common.AasxCsharpLibrary.Extensions;
 
@@ -23,7 +22,7 @@ public static class ExtendConceptDescription
     }
 
     public static EmbeddedDataSpecification SetIEC61360Spec(this IConceptDescription conceptDescription,
-        string[] preferredNames = null,
+        string[]? preferredNames = null,
         string shortName = "",
         string unit = "",
         Reference unitId = null,
@@ -31,7 +30,7 @@ public static class ExtendConceptDescription
         string sourceOfDefinition = null,
         string symbol = null,
         string dataType = "",
-        string[] definition = null
+        string[]? definition = null
     )
     {
         var eds = new EmbeddedDataSpecification(
@@ -103,7 +102,7 @@ public static class ExtendConceptDescription
 
     #endregion
 
-    public static Key GetSingleKey(this IConceptDescription? conceptDescription)
+    public static Key? GetSingleKey(this IConceptDescription? conceptDescription)
     {
         return new Key(KeyTypes.ConceptDescription, conceptDescription.Id);
     }
@@ -151,7 +150,7 @@ public static class ExtendConceptDescription
         {
             foreach (var caseOf in srcCD.IsCaseOf)
             {
-                IReference newCaseOf = null;
+                IReference? newCaseOf = null;
                 if (caseOf is {IsEmpty: false})
                 {
                     newCaseOf = ExtensionsUtil.ConvertReferenceFromV20(caseOf, ReferenceTypes.ModelReference);

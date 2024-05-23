@@ -8,7 +8,6 @@ This source code may use other Open Source software components (see LICENSE.txt)
 */
 
 using AdminShellNS;
-using Extensions;
 using Newtonsoft.Json;
 using Environment = AasCore.Aas3_0.Environment;
 
@@ -21,7 +20,7 @@ public static class ExtendEnvironment
     #region AasxPackageExplorer
 
     public static void RecurseOnReferable(this AasCore.Aas3_0.Environment environment,
-        object state, Func<object, List<IReferable>, IReferable, bool>? lambda, bool includeThis = false)
+        object state, Func<object, List<IReferable>?, IReferable?, bool>? lambda, bool includeThis = false)
     {
         // includeThis does not make sense, as no Referable
         // just use the others
@@ -113,7 +112,7 @@ public static class ExtendEnvironment
         // ok
     }
 
-    public static IEnumerable<IReferable> FindAllReferable(this Environment environment, bool onlyIdentifiables = false)
+    public static IEnumerable<IReferable?> FindAllReferable(this Environment environment, bool onlyIdentifiables = false)
     {
         if (environment.AssetAdministrationShells != null)
             foreach (var aas in environment.AssetAdministrationShells.OfType<IAssetAdministrationShell>())
@@ -125,7 +124,7 @@ public static class ExtendEnvironment
                 yield return sm;
 
                 if (onlyIdentifiables) continue;
-                var allsme = new List<ISubmodelElement>();
+                var allsme = new List<ISubmodelElement?>();
                 sm.RecurseOnSubmodelElements(null, (_, _, sme) =>
                 {
                     allsme.Add(sme);
@@ -399,7 +398,7 @@ public static class ExtendEnvironment
         }
     }
 
-    public static ISubmodel? FindSubmodel(this Environment environment, IReference submodelReference)
+    public static ISubmodel? FindSubmodel(this Environment environment, IReference? submodelReference)
     {
         if (submodelReference.Keys.Count != 1) // Can have only one reference key
         {
@@ -512,7 +511,7 @@ public static class ExtendEnvironment
         this Environment environment,
         IReference reference,
         int keyIndex = 0,
-        IEnumerable<ISubmodelElement>? submodelElems = null,
+        IEnumerable<ISubmodelElement?>? submodelElems = null,
         ReferableRootInfo? rootInfo = null)
     {
         // access
@@ -855,8 +854,8 @@ public static class ExtendEnvironment
         return cmp;
     }
 
-    public static ISubmodelElement CopySubmodelElementAndCD(this Environment environment,
-        Environment srcEnv, ISubmodelElement srcElem, bool copyCD = false, bool shallowCopy = false)
+    public static ISubmodelElement? CopySubmodelElementAndCD(this Environment environment,
+        Environment srcEnv, ISubmodelElement? srcElem, bool copyCD = false, bool shallowCopy = false)
     {
         // 1st result pretty easy (calling function will add this to the appropriate Submodel)
         var res = srcElem.Copy();
@@ -868,8 +867,8 @@ public static class ExtendEnvironment
         return res;
     }
 
-    public static IReference CopySubmodelRefAndCD(this Environment environment,
-        Environment srcEnv, IReference srcSubRef, bool copySubmodel = false, bool copyCD = false,
+    public static IReference? CopySubmodelRefAndCD(this Environment environment,
+        Environment srcEnv, IReference? srcSubRef, bool copySubmodel = false, bool copyCD = false,
         bool shallowCopy = false)
     {
         // need to have the source Submodel
@@ -914,7 +913,7 @@ public static class ExtendEnvironment
     }
 
     private static void CopyConceptDescriptionsFrom(this Environment environment,
-        Environment srcEnv, ISubmodelElement src, bool shallowCopy = false)
+        Environment srcEnv, ISubmodelElement? src, bool shallowCopy = false)
     {
         // access
         if (src?.SemanticId == null)

@@ -6,18 +6,17 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 
 This source code may use other Open Source software components (see LICENSE.txt).
 */
-namespace Extensions
-{
-    public class LocatedReference
-    {
-        public IIdentifiable Identifiable;
-        public IReference Reference;
+namespace aaspe_common.AasxCsharpLibrary.Extensions;
 
-        public LocatedReference() { }
-        public LocatedReference(IIdentifiable identifiable, IReference reference)
-        {
-            Identifiable = identifiable;
-            Reference = reference;
-        }
+public class LocatedReference
+{
+    public IIdentifiable Identifiable;
+    public IReference Reference;
+
+    public LocatedReference() { }
+    public LocatedReference(IIdentifiable identifiable, IReference reference)
+    {
+        Identifiable = identifiable;
+        Reference = reference;
     }
 }

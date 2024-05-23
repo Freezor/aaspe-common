@@ -8,7 +8,6 @@ This source code may use other Open Source software components (see LICENSE.txt)
 */
 
 using AdminShellNS;
-using Extensions;
 
 namespace aaspe_common.AasxCsharpLibrary.Extensions;
 
@@ -16,7 +15,7 @@ public static class ExtendIDataSpecificationContent
 {
     public enum ContentTypes { NoInfo, Iec61360, PhysicalUnit }
 
-    public static Key GetKeyForIec61360()
+    public static Key? GetKeyForIec61360()
     {
         return new Key(KeyTypes.GlobalReference,
             "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0");
@@ -27,13 +26,13 @@ public static class ExtendIDataSpecificationContent
         return new Reference(ReferenceTypes.ExternalReference, new List<IKey> { GetKeyForIec61360() });
     }
 
-    public static Key GetKeyForPhysicalUnit()
+    public static Key? GetKeyForPhysicalUnit()
     {
         return new Key(KeyTypes.GlobalReference,
             "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationPhysicalUnit/3/0");
     }
 
-    public static Key GetKeyFor(ContentTypes ct)
+    public static Key? GetKeyFor(ContentTypes ct)
     {
         return ct switch
         {

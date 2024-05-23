@@ -9,7 +9,6 @@ This source code may use other Open Source software components (see LICENSE.txt)
 
 using System.Text.Json.Nodes;
 using AdminShellNS;
-using Extensions;
 using Range = AasCore.Aas3_0.Range;
 
 namespace aaspe_common.AasxCsharpLibrary.Extensions;
@@ -29,14 +28,14 @@ public static class ExtendIReferable
     /// The lambda shall return <c>TRUE</c> in order to deep into recursion.</param>
     /// <param name="includeThis">Include this element as well. <c>parents</c> will then 
     /// include this element as well!</param>
-    public static void RecurseOnReferable(this IReferable referable,
-        object state, Func<object, List<IReferable>, IReferable, bool>? lambda,
+    public static void RecurseOnReferable(this IReferable? referable,
+        object state, Func<object, List<IReferable>?, IReferable?, bool>? lambda,
         bool includeThis = false)
     {
         switch (referable)
         {
             case Submodel submodel:
-                submodel.RecurseOnReferables(state, lambda, includeThis);
+                submodel.RecurseOnReferable(state, lambda, includeThis);
                 break;
             case SubmodelElementCollection submodelElementCollection:
                 submodelElementCollection.RecurseOnReferables(state, lambda, includeThis);
@@ -99,7 +98,7 @@ public static class ExtendIReferable
 
     #region Display
 
-    public static EnumerationPlacmentBase? GetChildrenPlacement(this IReferable referable, ISubmodelElement submodelElement)
+    public static EnumerationPlacmentBase? GetChildrenPlacement(this IReferable referable, ISubmodelElement? submodelElement)
     {
         if (referable is Operation operation)
         {
@@ -157,7 +156,7 @@ public static class ExtendIReferable
         };
     }
 
-    public static void Validate(this IReferable referable, AasValidationRecordList? results)
+    public static void Validate(this IReferable? referable, AasValidationRecordList? results)
     {
         referable.BaseValidation(results);
         switch (referable)
@@ -171,7 +170,7 @@ public static class ExtendIReferable
         }
     }
 
-    public static void BaseValidation(this IReferable referable, AasValidationRecordList? results)
+    public static void BaseValidation(this IReferable? referable, AasValidationRecordList? results)
     {
         // access
         if (results == null)
@@ -280,7 +279,7 @@ public static class ExtendIReferable
         return (num > 0);
     }
 
-    public static IEnumerable<ISubmodelElement>? EnumerateChildren(this IReferable? rf)
+    public static IEnumerable<ISubmodelElement?>? EnumerateChildren(this IReferable? rf)
     {
         if (rf == null)
             yield break;
@@ -291,7 +290,7 @@ public static class ExtendIReferable
     }
 
 
-    public static void SetAllParentsAndTimestamps(this IReferable referable, IReferable parent, DateTime timeStamp, DateTime timeStampCreate)
+    public static void SetAllParentsAndTimestamps(this IReferable? referable, IReferable? parent, DateTime timeStamp, DateTime timeStampCreate)
     {
         referable.Parent = parent;
         referable.TimeStamp = timeStamp;
@@ -407,7 +406,7 @@ public static class ExtendIReferable
         return rfe.Extensions.FirstOrDefault(e => string.Equals(e.Name?.Trim(), extensionName?.Trim(), StringComparison.CurrentCultureIgnoreCase));
     }
 
-    public static Extension Add(this IReferable? rf, Extension ext)
+    public static Extension? Add(this IReferable? rf, Extension? ext)
     {
         if (rf != null) rf.Extensions ??= new List<IExtension>();
         rf?.Extensions?.Add(ext);

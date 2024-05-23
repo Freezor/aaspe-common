@@ -6,265 +6,200 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 
 This source code may use other Open Source software components (see LICENSE.txt).
 */
-using System;
-using System.Collections.Generic;
+
 using System.Globalization;
-using System.Linq;
-using aaspe_common.AasxCsharpLibrary.Extensions;
+using AasxCompatibilityModels;
 
-namespace Extensions
+namespace aaspe_common.AasxCsharpLibrary.Extensions;
+
+public static class ExtendProperty
 {
-    public static class ExtendProperty
+    #region AasxPackageExplorer
+
+    public static void ValueFromText(this Property property, string text)
     {
-        #region AasxPackageExplorer
+        property.Value = text;
+    }
 
-        public static void ValueFromText(this Property property, string text)
+    #endregion
+
+    public static bool IsValueTrue(this Property property)
+    {
+        return property is {Value: not null, ValueType: DataTypeDefXsd.Boolean} && property.Value.Equals("true", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static string ValueAsText(this Property property)
+    {
+        return property.Value ?? string.Empty;
+    }
+
+    public static double? ValueAsDouble(this Property prop)
+    {
+        // pointless
+        if (prop.Value == null || string.IsNullOrEmpty(prop.Value.Trim()))
+            return null;
+
+        // type?
+        if (!ExtendDataElement.ValueTypes_Number.Contains(prop.ValueType))
+            return null;
+
+        // try convert
+        if (double.TryParse(prop.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var dbl))
+            return dbl;
+
+        // no
+        return null;
+    }
+
+    public static Property? ConvertFromV10(this Property? property, AdminShellV10.Property? sourceProperty)
+    {
+        if (sourceProperty == null)
         {
-            property.Value = text;
-        }
-
-        #endregion
-        public static bool IsValueTrue(this Property property)
-        {
-            if (property.ValueType == DataTypeDefXsd.Boolean)
-            {
-                if (property.Value.Equals("true", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public static string ValueAsText(this Property property)
-        {
-            return "" + property.Value;
-        }
-
-        public static double? ValueAsDouble(this Property prop)
-        {
-            // pointless
-            if (prop.Value == null || prop.Value.Trim() == "")
-                return null;
-
-            // type?
-            if (!ExtendDataElement.ValueTypes_Number.Contains(prop.ValueType))
-                return null;
-
-            // try convert
-            if (double.TryParse(prop.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out double dbl))
-                return dbl;
-
-            // no
             return null;
         }
-        public static Property? ConvertFromV10(this Property? property, AasxCompatibilityModels.AdminShellV10.Property sourceProperty)
-        {
-            if (sourceProperty == null)
-            {
-                return null;
-            }
-            var propertyType = Stringification.DataTypeDefXsdFromString("xs:" + sourceProperty.valueType);
-            if (propertyType != null)
-            {
-                property.ValueType = (DataTypeDefXsd)propertyType;
-            }
-            else
-            {
-                Console.WriteLine($"ValueType {sourceProperty.valueType} not found for property {sourceProperty.idShort}");
-            }
-            property.Value = sourceProperty.value;
-            if (sourceProperty.valueId != null && !sourceProperty.valueId.IsEmpty)
-            {
-                var keyList = new List<IKey>();
-                foreach (var refKey in sourceProperty.valueId.Keys)
-                {
-                    var keyType = Stringification.KeyTypesFromString(refKey.type);
-                    if (keyType != null)
-                    {
-                        keyList.Add(new Key((KeyTypes)keyType, refKey.value));
-                    }
-                    else
-                    {
-                        Console.WriteLine($"KeyType value {sourceProperty.valueType} not found for property {property.IdShort}");
-                    }
-                }
-                property.ValueId = new Reference(ReferenceTypes.ExternalReference, keyList);
-            }
 
+        var propertyType = Stringification.DataTypeDefXsdFromString("xs:" + sourceProperty.valueType);
+        if (propertyType != null)
+        {
+            if (property != null)
+            {
+                property.ValueType = (DataTypeDefXsd) propertyType;
+            }
+        }
+        else
+        {
+            Console.WriteLine($"ValueType {sourceProperty.valueType} not found for property {sourceProperty.idShort}");
+        }
+
+        property.Value = sourceProperty.value;
+        if (sourceProperty.valueId is not {IsEmpty: false})
+        {
             return property;
         }
 
-        public static Property? ConvertFromV20(this Property? property, AasxCompatibilityModels.AdminShellV20.Property sourceProperty)
+        var keyList = new List<IKey>();
+        foreach (var refKey in sourceProperty.valueId.Keys)
         {
-            if (sourceProperty == null)
+            var keyType = Stringification.KeyTypesFromString(refKey.type);
+            if (keyType != null)
             {
-                return null;
-            }
-
-            var propertyType = Stringification.DataTypeDefXsdFromString("xs:" + sourceProperty.valueType);
-            if (propertyType != null)
-            {
-                property.ValueType = (DataTypeDefXsd)propertyType;
+                keyList.Add(new Key((KeyTypes) keyType, refKey.value));
             }
             else
             {
-                Console.WriteLine($"ValueType {sourceProperty.valueType} not found for property {sourceProperty.idShort}");
+                Console.WriteLine($"KeyType value {sourceProperty.valueType} not found for property {property.IdShort}");
             }
-            property.Value = sourceProperty.value;
-            if (sourceProperty.valueId != null && !sourceProperty.valueId.IsEmpty)
-            {
-                var keyList = new List<IKey>();
-                foreach (var refKey in sourceProperty.valueId.Keys)
-                {
-                    var keyType = Stringification.KeyTypesFromString(refKey.type);
-                    if (keyType != null)
-                    {
-                        keyList.Add(new Key((KeyTypes)keyType, refKey.value));
-                    }
-                    else
-                    {
-                        Console.WriteLine($"KeyType value {sourceProperty.valueType} not found for property {property.IdShort}");
-                    }
-                }
-                property.ValueId = new Reference(ReferenceTypes.ExternalReference, keyList);
-            }
-
-            return property;
         }
 
-        public static Property UpdateFrom(this Property elem, ISubmodelElement? source)
+        property.ValueId = new Reference(ReferenceTypes.ExternalReference, keyList);
+
+        return property;
+    }
+
+    public static Property? ConvertFromV20(this Property? property, AdminShellV20.Property? sourceProperty)
+    {
+        if (sourceProperty == null)
         {
-            if (source == null)
-                return elem;
+            return null;
+        }
 
-            ((ISubmodelElement)elem).UpdateFrom(source);
+        var propertyType = Stringification.DataTypeDefXsdFromString("xs:" + sourceProperty.valueType);
+        if (propertyType != null)
+        {
+            property.ValueType = (DataTypeDefXsd) propertyType;
+        }
+        else
+        {
+            Console.WriteLine($"ValueType {sourceProperty.valueType} not found for property {sourceProperty.idShort}");
+        }
 
-            if (source is Property srcProp)
+        property.Value = sourceProperty.value;
+        if (sourceProperty.valueId is not {IsEmpty: false}) return property;
+        var keyList = new List<IKey>();
+        foreach (var refKey in sourceProperty.valueId.Keys)
+        {
+            var keyType = Stringification.KeyTypesFromString(refKey.type);
+            if (keyType != null)
+            {
+                keyList.Add(new Key((KeyTypes) keyType, refKey.value));
+            }
+            else
+            {
+                Console.WriteLine($"KeyType value {sourceProperty.valueType} not found for property {property.IdShort}");
+            }
+        }
+
+        property.ValueId = new Reference(ReferenceTypes.ExternalReference, keyList);
+
+        return property;
+    }
+
+    public static Property UpdateFrom(this Property elem, ISubmodelElement? source)
+    {
+        if (source == null)
+            return elem;
+
+        ((ISubmodelElement) elem).UpdateFrom(source);
+
+        switch (source)
+        {
+            case Property srcProp:
             {
                 elem.ValueType = srcProp.ValueType;
                 elem.Value = srcProp.Value;
                 if (srcProp.ValueId != null)
                     elem.ValueId = srcProp.ValueId.Copy();
+                break;
             }
-
-            if (source is AasCore.Aas3_0.Range srcRng)
-            {
+            case AasCore.Aas3_0.Range srcRng:
                 elem.ValueType = srcRng.ValueType;
                 elem.Value = srcRng.Min;
-            }
-
-            if (source is MultiLanguageProperty srcMlp)
+                break;
+            case MultiLanguageProperty srcMlp:
             {
                 elem.ValueType = DataTypeDefXsd.String;
-                elem.Value = "" + srcMlp.Value?.GetDefaultString();
+                elem.Value = srcMlp.Value?.GetDefaultString();
                 if (srcMlp.ValueId != null)
                     elem.ValueId = srcMlp.ValueId.Copy();
+                break;
             }
-
-            if (source is File srcFile)
-            {
+            case File srcFile:
                 elem.ValueType = DataTypeDefXsd.String;
-                elem.Value = "" + srcFile.Value;
-            }
-
-            return elem;
+                elem.Value = srcFile.Value;
+                break;
         }
 
-        // MIHO: Jui, why was this required?
-#if OLD
+        return elem;
+    }
 
-        public static void UpdatePropertyFrom(this Property property, Property sourceProperty)
-        {
-            if (sourceProperty.Extensions != null)
-            {
-                property.Extensions = sourceProperty.Extensions;
-            }
-            if (sourceProperty.Category != null)
-            {
-                property.Category = sourceProperty.Category;
-            }
-            if (sourceProperty.IdShort != null)
-            {
-                property.IdShort = sourceProperty.IdShort;
-            }
-            if (sourceProperty.DisplayName != null)
-            {
-                property.DisplayName = sourceProperty.DisplayName;
-            }
-            if (sourceProperty.Description != null)
-            {
-                property.Description = sourceProperty.Description;
-            }
-            if (sourceProperty.Checksum != null)
-            {
-                property.Checksum = sourceProperty.Checksum;
-            }
-            if (sourceProperty.Kind != null)
-            {
-                property.Kind = sourceProperty.Kind;
-            }
-            if (sourceProperty.SemanticId != null)
-            {
-                property.SemanticId = sourceProperty.SemanticId;
-            }
-            if (sourceProperty.SupplementalSemanticIds != null)
-            {
-                property.SupplementalSemanticIds = sourceProperty.SupplementalSemanticIds;
-            }
-            if (sourceProperty.Qualifiers != null)
-            {
-                property.Qualifiers = sourceProperty.Qualifiers;
-            }
-            if (sourceProperty.EmbeddedDataSpecifications != null)
-            {
-                property.EmbeddedDataSpecifications = sourceProperty.EmbeddedDataSpecifications;
-            }
-            if (true)
-            {
-                property.ValueType = sourceProperty.ValueType;
-            }
-            if (sourceProperty.ValueId != null)
-            {
-                property.ValueId = sourceProperty.ValueId;
-            }
-            if (sourceProperty.Value != null)
-            {
-                property.Value = sourceProperty.Value;
-            }
-        }
-#endif
+    public static Property Set(this Property prop,
+        DataTypeDefXsd valueType = DataTypeDefXsd.String, string value = "")
+    {
+        prop.ValueType = valueType;
+        prop.Value = value;
+        return prop;
+    }
 
-        public static Property Set(this Property prop,
-            DataTypeDefXsd valueType = DataTypeDefXsd.String, string value = "")
-        {
-            prop.ValueType = valueType;
-            prop.Value = value;
-            return prop;
-        }
+    public static Property Set(this Property prop,
+        KeyTypes type, string value)
+    {
+        prop.ValueId = ExtendReference.CreateFromKey(new Key(type, value));
+        return prop;
+    }
 
-        public static Property Set(this Property prop,
-            KeyTypes type, string value)
-        {
-            prop.ValueId = ExtendReference.CreateFromKey(new Key(type, value));
-            return prop;
-        }
+    public static Property Set(this Property prop,
+        Qualifier? q)
+    {
+        if (q != null)
+            prop.Add(q);
+        return prop;
+    }
 
-        public static Property Set(this Property prop,
-            Qualifier? q)
-        {
-            if (q != null)
-                prop.Add(q);
-            return prop;
-        }
-
-        public static Property Set(this Property prop,
-            Extension ext)
-        {
-            if (ext != null)
-                prop.Add(ext);
-            return prop;
-        }
+    public static Property Set(this Property prop,
+        Extension? ext)
+    {
+        if (ext != null)
+            prop.Add(ext);
+        return prop;
     }
 }

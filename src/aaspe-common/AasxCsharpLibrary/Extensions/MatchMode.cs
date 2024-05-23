@@ -6,12 +6,11 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 
 This source code may use other Open Source software components (see LICENSE.txt).
 */
-namespace Extensions
+namespace aaspe_common.AasxCsharpLibrary.Extensions;
+
+public enum MatchMode
 {
-    public enum MatchMode
-    {
-        Strict,  //may be not needed in future, as no local flag in V3
-        Relaxed, //should be as default
-        Identification
-    }
+    Strict,  //may be not needed in future, as no local flag in V3
+    Relaxed, //should be as default
+    Identification
 }

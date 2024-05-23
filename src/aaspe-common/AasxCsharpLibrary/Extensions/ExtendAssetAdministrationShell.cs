@@ -10,8 +10,6 @@ This source code may use other Open Source software components (see LICENSE.txt)
 using System.Text.RegularExpressions;
 using AasxCompatibilityModels;
 using AdminShellNS;
-using AdminShellNS.Extensions;
-using Extensions;
 
 namespace aaspe_common.AasxCsharpLibrary.Extensions;
 
