@@ -16,7 +16,7 @@ public static class ExtendConceptDescription
 {
     #region AasxPackageExplorer
 
-    public static string GetDefaultPreferredName(this IConceptDescription conceptDescription, string defaultLang = null)
+    public static string GetDefaultPreferredName(this IConceptDescription conceptDescription, string? defaultLang = null)
     {
         return conceptDescription.GetIEC61360()?
             .PreferredName?.GetDefaultString(defaultLang) ?? string.Empty;
@@ -68,13 +68,13 @@ public static class ExtendConceptDescription
         return Tuple.Create(caption, info);
     }
 
-    private static string GetDefaultShortName(this IConceptDescription conceptDescription, string defaultLang = null)
+    private static string GetDefaultShortName(this IConceptDescription conceptDescription, string? defaultLang = null)
     {
         return conceptDescription.GetIEC61360()?
             .ShortName?.GetDefaultString(defaultLang) ?? string.Empty;
     }
 
-    public static DataSpecificationIec61360? GetIEC61360(this IConceptDescription conceptDescription)
+    public static DataSpecificationIec61360? GetIEC61360(this IConceptDescription? conceptDescription)
     {
         return conceptDescription.EmbeddedDataSpecifications?.GetIEC61360Content();
     }
@@ -103,7 +103,7 @@ public static class ExtendConceptDescription
 
     #endregion
 
-    public static Key GetSingleKey(this IConceptDescription conceptDescription)
+    public static Key GetSingleKey(this IConceptDescription? conceptDescription)
     {
         return new Key(KeyTypes.ConceptDescription, conceptDescription.Id);
     }
@@ -190,7 +190,7 @@ public static class ExtendConceptDescription
         return eds;
     }
 
-    public static Reference GetCdReference(this IConceptDescription conceptDescription)
+    public static Reference GetCdReference(this IConceptDescription? conceptDescription)
     {
         var key = new Key(KeyTypes.GlobalReference, conceptDescription.Id);
         return new Reference(ReferenceTypes.ExternalReference, new List<IKey> {key});

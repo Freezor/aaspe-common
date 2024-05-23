@@ -7,6 +7,7 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 This source code may use other Open Source software components (see LICENSE.txt).
 */
 using System;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 using AAS = AasCore.Aas3_0;
 
 namespace Extensions
@@ -41,7 +42,7 @@ namespace Extensions
             return range;
         }
 
-        public static AAS.Range UpdateFrom(this AAS.Range elem, AAS.ISubmodelElement source)
+        public static AAS.Range UpdateFrom(this AAS.Range elem, ISubmodelElement? source)
         {
             if (source == null)
                 return elem;

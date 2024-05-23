@@ -6,6 +6,8 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 
 This source code may use other Open Source software components (see LICENSE.txt).
 */
+
+using aaspe_common.AasxCsharpLibrary.Extensions;
 using AAS = AasCore.Aas3_0;
 
 namespace Extensions
@@ -20,7 +22,7 @@ namespace Extensions
         }
 
         public static AAS.ReferenceElement UpdateFrom(
-            this AAS.ReferenceElement elem, AAS.ISubmodelElement source)
+            this AAS.ReferenceElement elem, ISubmodelElement? source)
         {
             if (source == null)
                 return elem;

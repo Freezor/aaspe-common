@@ -10,6 +10,7 @@ using AdminShellNS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 
 namespace Extensions
 {
@@ -28,7 +29,7 @@ namespace Extensions
         /// <param name="includeThis">Include this element as well. <c>parents</c> will then 
         /// include this element as well!</param>
         public static void RecurseOnReferables(this SubmodelElementList submodelElementList,
-            object state, Func<object, List<IReferable>, IReferable, bool> lambda,
+            object state, Func<object, List<IReferable>, IReferable, bool>? lambda,
             bool includeThis = false)
         {
             var parents = new List<IReferable>();
@@ -92,7 +93,7 @@ namespace Extensions
         }
 
         public static SubmodelElementList UpdateFrom(
-            this SubmodelElementList elem, ISubmodelElement source)
+            this SubmodelElementList elem, ISubmodelElement? source)
         {
             if (source == null)
                 return elem;
@@ -102,7 +103,7 @@ namespace Extensions
             if (source is SubmodelElementCollection srcColl)
             {
                 if (srcColl.Value != null)
-                    elem.Value = srcColl.Value.Copy();
+                    elem.Value = ExtendISubmodelElement.Copy(srcColl.Value);
             }
 
             if (source is Operation srcOp)

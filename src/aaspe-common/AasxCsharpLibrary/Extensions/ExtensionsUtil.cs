@@ -67,7 +67,7 @@ namespace Extensions
             return outputReference;
         }
 
-        internal static List<ILangStringTextType> ConvertDescriptionFromV10(AdminShellV10.Description sourceDescription)
+        internal static List<ILangStringTextType> ConvertDescriptionFromV10(AdminShellV10.Description? sourceDescription)
         {
             var newLangStrList = new List<ILangStringTextType>();
             foreach (var ls in sourceDescription.langString)

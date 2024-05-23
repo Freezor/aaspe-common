@@ -59,7 +59,7 @@ namespace Extensions
             // no
             return null;
         }
-        public static Property ConvertFromV10(this Property property, AasxCompatibilityModels.AdminShellV10.Property sourceProperty)
+        public static Property? ConvertFromV10(this Property? property, AasxCompatibilityModels.AdminShellV10.Property sourceProperty)
         {
             if (sourceProperty == null)
             {
@@ -134,7 +134,7 @@ namespace Extensions
             return property;
         }
 
-        public static Property UpdateFrom(this Property elem, ISubmodelElement source)
+        public static Property UpdateFrom(this Property elem, ISubmodelElement? source)
         {
             if (source == null)
                 return elem;
@@ -252,7 +252,7 @@ namespace Extensions
         }
 
         public static Property Set(this Property prop,
-            Qualifier q)
+            Qualifier? q)
         {
             if (q != null)
                 prop.Add(q);

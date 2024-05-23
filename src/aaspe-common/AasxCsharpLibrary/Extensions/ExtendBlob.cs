@@ -21,7 +21,7 @@ public static class ExtendBlob
         blob.Value = value;
     }
 
-    public static Blob ConvertFromV10(this Blob blob, AasxCompatibilityModels.AdminShellV10.Blob sourceBlob)
+    public static Blob? ConvertFromV10(this Blob? blob, AasxCompatibilityModels.AdminShellV10.Blob sourceBlob)
     {
         blob.ContentType = sourceBlob.mimeType;
         blob.Value = Encoding.ASCII.GetBytes(sourceBlob.value);
@@ -39,7 +39,7 @@ public static class ExtendBlob
         return blob;
     }
 
-    public static Blob UpdateFrom(this Blob elem, ISubmodelElement source)
+    public static Blob UpdateFrom(this Blob elem, ISubmodelElement? source)
     {
         ((ISubmodelElement) elem).UpdateFrom(source);
 

@@ -882,7 +882,7 @@ namespace AasxCompatibilityModels
 
             public Description() { }
 
-            public Description(Description src)
+            public Description(Description? src)
             {
                 if (src != null)
                     foreach (var ls in src.langString)
@@ -1037,7 +1037,7 @@ namespace AasxCompatibilityModels
 
             [XmlElement(ElementName = "description")]
             [JsonIgnore]
-            public Description description = null;
+            public Description? description = null;
             [XmlIgnore]
             [JsonProperty(PropertyName = "descriptions")]
             public List<LangStr> JsonDescription
@@ -1058,7 +1058,7 @@ namespace AasxCompatibilityModels
 
             [XmlIgnore]
             [JsonIgnore]
-            public Referable parent = null;
+            public Referable? parent = null;
 
             public static string[] ReferableCategoryNames = new string[] { "CONSTANT", "PARAMETER", "VARIABLE" };
 
@@ -1066,7 +1066,7 @@ namespace AasxCompatibilityModels
 
             public Referable() { }
 
-            public Referable(Referable src)
+            public Referable(Referable? src)
             {
                 this.idShort = src.idShort;
                 this.category = src.category;
@@ -1139,7 +1139,7 @@ namespace AasxCompatibilityModels
 
             public Identifiable() : base() { }
 
-            public Identifiable(Identifiable src)
+            public Identifiable(Identifiable? src)
                 : base(src)
             {
                 if (src.identification != null)
@@ -1204,7 +1204,7 @@ namespace AasxCompatibilityModels
             public Views views = null;
             [XmlIgnore]
             [JsonProperty(PropertyName = "views")]
-            public View[] JsonViews
+            public View?[] JsonViews
             {
                 get { return views?.views.ToArray(); }
                 set { views = Views.CreateOrSetInnerViews(views, value); }
@@ -1217,7 +1217,7 @@ namespace AasxCompatibilityModels
 
             public AdministrationShell() { }
 
-            public AdministrationShell(AdministrationShell src)
+            public AdministrationShell(AdministrationShell? src)
                 : base(src)
             {
                 if (src.hasDataSpecification != null)
@@ -1257,7 +1257,7 @@ namespace AasxCompatibilityModels
 
             // add
 
-            public void AddView(View v)
+            public void AddView(View? v)
             {
                 if (views == null)
                     views = new Views();
@@ -1373,7 +1373,7 @@ namespace AasxCompatibilityModels
 
             public Asset() { }
 
-            public Asset(Asset src)
+            public Asset(Asset? src)
                 : base(src)
             {
                 if (src.hasDataSpecification != null)
@@ -1468,7 +1468,7 @@ containedElements == null) return null; return containedElements[index];
 
             public View() { }
 
-            public View(View src)
+            public View(View? src)
                 : base(src)
             {
                 if (src.semanticId != null)
@@ -1557,7 +1557,7 @@ containedElements == null) return null; return containedElements[index];
         {
             [XmlElement(ElementName = "view")]
             [JsonIgnore]
-            public List<View> views = new List<View>();
+            public List<View?> views = new List<View?>();
 
             // constructors
 
@@ -1570,7 +1570,7 @@ containedElements == null) return null; return containedElements[index];
                         this.views.Add(new View(v));
             }
 
-            public static Views CreateOrSetInnerViews(Views outer, View[] inner)
+            public static Views CreateOrSetInnerViews(Views outer, View?[] inner)
             {
                 var res = outer;
                 if (res == null)
@@ -1580,7 +1580,7 @@ containedElements == null) return null; return containedElements[index];
                     res.views = null;
                     return res;
                 }
-                res.views = new List<View>(inner);
+                res.views = new List<View?>(inner);
                 return res;
             }
         }
@@ -1877,7 +1877,7 @@ containedElements == null) return null; return containedElements[index];
 
             public ConceptDescription() : base() { }
 
-            public ConceptDescription(ConceptDescription src)
+            public ConceptDescription(ConceptDescription? src)
                 : base(src)
             {
                 if (src.embeddedDataSpecification != null)
@@ -2054,20 +2054,20 @@ containedElements == null) return null; return containedElements[index];
 
             /// [XmlElement(ElementName="assetAdministrationShells")]
             [XmlIgnore] // will be ignored, anyway
-            private List<AdministrationShell> administrationShells = new List<AdministrationShell>();
+            private List<AdministrationShell?> administrationShells = new List<AdministrationShell?>();
             [XmlIgnore] // will be ignored, anyway
-            private List<Asset> assets = new List<Asset>();
+            private List<Asset?> assets = new List<Asset?>();
             [XmlIgnore] // will be ignored, anyway
-            private List<Submodel> submodels = new List<Submodel>();
+            private List<Submodel?> submodels = new List<Submodel?>();
             [XmlIgnore] // will be ignored, anyway
-            private List<ConceptDescription> conceptDescriptions = new List<ConceptDescription>();
+            private List<ConceptDescription?> conceptDescriptions = new List<ConceptDescription?>();
 
             // getter / setters
 
             [XmlArray("assetAdministrationShells")]
             [XmlArrayItem("assetAdministrationShell")]
             [JsonProperty(PropertyName = "assetAdministrationShells")]
-            public List<AdministrationShell> AdministrationShells
+            public List<AdministrationShell?> AdministrationShells
             {
                 get { return administrationShells; }
                 set { administrationShells = value; }
@@ -2076,7 +2076,7 @@ containedElements == null) return null; return containedElements[index];
             [XmlArray("assets")]
             [XmlArrayItem("asset")]
             [JsonProperty(PropertyName = "assets")]
-            public List<Asset> Assets
+            public List<Asset?> Assets
             {
                 get { return assets; }
                 set { assets = value; }
@@ -2085,7 +2085,7 @@ containedElements == null) return null; return containedElements[index];
             [XmlArray("submodels")]
             [XmlArrayItem("submodel")]
             [JsonProperty(PropertyName = "submodels")]
-            public List<Submodel> Submodels
+            public List<Submodel?> Submodels
             {
                 get { return submodels; }
                 set { submodels = value; }
@@ -2094,7 +2094,7 @@ containedElements == null) return null; return containedElements[index];
             [XmlArray("conceptDescriptions")]
             [XmlArrayItem("conceptDescription")]
             [JsonProperty(PropertyName = "conceptDescriptions")]
-            public List<ConceptDescription> ConceptDescriptions
+            public List<ConceptDescription?> ConceptDescriptions
             {
                 get { return conceptDescriptions; }
                 set { conceptDescriptions = value; }
@@ -2102,7 +2102,7 @@ containedElements == null) return null; return containedElements[index];
 
             // finders
 
-            public AdministrationShell FindAAS(Identification id)
+            public AdministrationShell? FindAAS(Identification id)
             {
                 if (id == null)
                     return null;
@@ -2112,7 +2112,7 @@ containedElements == null) return null; return containedElements[index];
                 return null;
             }
 
-            public AdministrationShell FindAAS(string idShort)
+            public AdministrationShell? FindAAS(string idShort)
             {
                 if (idShort == null)
                     return null;
@@ -2122,7 +2122,7 @@ containedElements == null) return null; return containedElements[index];
                 return null;
             }
 
-            public AdministrationShell FindAASwithSubmodel(Identification smid)
+            public AdministrationShell? FindAASwithSubmodel(Identification smid)
             {
                 if (smid == null)
                     return null;
@@ -2134,7 +2134,7 @@ containedElements == null) return null; return containedElements[index];
                 return null;
             }
 
-            public Asset FindAsset(Identification id)
+            public Asset? FindAsset(Identification id)
             {
                 if (id == null)
                     return null;
@@ -2144,7 +2144,7 @@ containedElements == null) return null; return containedElements[index];
                 return null;
             }
 
-            public Asset FindAsset(AssetRef aref)
+            public Asset? FindAsset(AssetRef aref)
             {
                 // trivial
                 if (aref == null)
@@ -2165,7 +2165,7 @@ containedElements == null) return null; return containedElements[index];
                 return null;
             }
 
-            public Submodel FindSubmodel(Identification id)
+            public Submodel? FindSubmodel(Identification id)
             {
                 if (id == null)
                     return null;
@@ -2175,7 +2175,7 @@ containedElements == null) return null; return containedElements[index];
                 return null;
             }
 
-            public Submodel FindSubmodel(SubmodelRef smref)
+            public Submodel? FindSubmodel(SubmodelRef smref)
             {
                 // trivial
                 if (smref == null)
@@ -2196,7 +2196,7 @@ containedElements == null) return null; return containedElements[index];
                 return null;
             }
 
-            public Referable FindReferableByReference(Reference rf, int keyIndex = 0)
+            public Referable? FindReferableByReference(Reference rf, int keyIndex = 0)
             {
                 // first index needs to exist ..
                 if (rf == null || keyIndex >= rf.Count)
@@ -2235,20 +2235,20 @@ containedElements == null) return null; return containedElements[index];
             }
 
 
-            public ConceptDescription FindConceptDescription(ConceptDescriptionRef cdr)
+            public ConceptDescription? FindConceptDescription(ConceptDescriptionRef cdr)
             {
                 if (cdr == null)
                     return null;
                 return FindConceptDescription(cdr.Keys);
             }
 
-            public ConceptDescription FindConceptDescription(Identification id)
+            public ConceptDescription? FindConceptDescription(Identification id)
             {
                 var cdr = ConceptDescriptionRef.CreateNew("Conceptdescription", true, id.idType, id.id);
                 return FindConceptDescription(cdr);
             }
 
-            public ConceptDescription FindConceptDescription(List<Key> keys)
+            public ConceptDescription? FindConceptDescription(List<Key> keys)
             {
                 // trivial
                 if (keys == null)
@@ -2269,7 +2269,7 @@ containedElements == null) return null; return containedElements[index];
                 return null;
             }
 
-            public ConceptDescription FindConceptDescription(Key key)
+            public ConceptDescription? FindConceptDescription(Key key)
             {
                 if (key == null)
                     return null;
@@ -2281,7 +2281,7 @@ containedElements == null) return null; return containedElements[index];
             // creators
 
             private void CopyConceptDescriptionsFrom(
-                AdministrationShellEnv srcEnv, SubmodelElement src, bool shallowCopy = false)
+                AdministrationShellEnv srcEnv, SubmodelElement? src, bool shallowCopy = false)
             {
                 // access
                 if (srcEnv == null || src == null || src.semanticId == null)
@@ -2304,7 +2304,7 @@ containedElements == null) return null; return containedElements[index];
             }
 
             public SubmodelElementWrapper CopySubmodelElementAndCD(
-                AdministrationShellEnv srcEnv, SubmodelElement srcElem, bool copyCD = false, bool shallowCopy = false)
+                AdministrationShellEnv srcEnv, SubmodelElement? srcElem, bool copyCD = false, bool shallowCopy = false)
             {
                 // access
                 if (srcEnv == null || srcElem == null)
@@ -2418,7 +2418,7 @@ containedElements == null) return null; return containedElements[index];
 
             private static void CreateFromExistingEnvRecurseForCDs(
                 AdministrationShellEnv src, List<SubmodelElementWrapper> wrappers,
-                ref List<ConceptDescription> filterForCD)
+                ref List<ConceptDescription?> filterForCD)
             {
                 if (wrappers == null || filterForCD == null)
                     return;
@@ -2449,20 +2449,20 @@ containedElements == null) return null; return containedElements[index];
             }
 
             public static AdministrationShellEnv CreateFromExistingEnv(AdministrationShellEnv src,
-                List<AdministrationShell> filterForAas = null,
-                List<Asset> filterForAsset = null,
-                List<Submodel> filterForSubmodel = null,
-                List<ConceptDescription> filterForCD = null)
+                List<AdministrationShell?> filterForAas = null,
+                List<Asset?> filterForAsset = null,
+                List<Submodel?> filterForSubmodel = null,
+                List<ConceptDescription?> filterForCD = null)
             {
                 // prepare defaults
                 if (filterForAas == null)
-                    filterForAas = new List<AdministrationShell>();
+                    filterForAas = new List<AdministrationShell?>();
                 if (filterForAsset == null)
-                    filterForAsset = new List<Asset>();
+                    filterForAsset = new List<Asset?>();
                 if (filterForSubmodel == null)
-                    filterForSubmodel = new List<Submodel>();
+                    filterForSubmodel = new List<Submodel?>();
                 if (filterForCD == null)
-                    filterForCD = new List<ConceptDescription>();
+                    filterForCD = new List<ConceptDescription?>();
 
                 // make new
                 var res = new AdministrationShellEnv();
@@ -2635,7 +2635,7 @@ containedElements == null) return null; return containedElements[index];
             public SubmodelElement()
                 : base() { }
 
-            public SubmodelElement(SubmodelElement src)
+            public SubmodelElement(SubmodelElement? src)
                 : base(src)
             {
                 if (src.hasDataSpecification != null)
@@ -2759,7 +2759,7 @@ containedElements == null) return null; return containedElements[index];
             [XmlElement(ElementName = "relationshipElement", Type = typeof(RelationshipElement))]
             [XmlElement(ElementName = "submodelElementCollection", Type = typeof(SubmodelElementCollection))]
             [XmlElement(ElementName = "operation", Type = typeof(Operation))]
-            public SubmodelElement submodelElement;
+            public SubmodelElement? submodelElement;
 
             // element names
             public static string[] AdequateElementNames = {
@@ -2771,7 +2771,7 @@ containedElements == null) return null; return containedElements[index];
             public SubmodelElementWrapper() { }
 
             // for cloning
-            public SubmodelElementWrapper(SubmodelElement src, bool shallowCopy = false)
+            public SubmodelElementWrapper(SubmodelElement? src, bool shallowCopy = false)
             {
                 if (src is Property)
                     this.submodelElement = new Property(src as Property);
@@ -2868,9 +2868,9 @@ containedElements == null) return null; return containedElements[index];
                 return ("Elem");
             }
 
-            public static List<SubmodelElement> ListOfWrappersToListOfElems(List<SubmodelElementWrapper> wrappers)
+            public static List<SubmodelElement?> ListOfWrappersToListOfElems(List<SubmodelElementWrapper> wrappers)
             {
-                var res = new List<SubmodelElement>();
+                var res = new List<SubmodelElement?>();
                 if (wrappers == null)
                     return res;
                 foreach (var w in wrappers)
@@ -2879,14 +2879,14 @@ containedElements == null) return null; return containedElements[index];
                 return res;
             }
 
-            public static SubmodelElementWrapper CreateFor(SubmodelElement sme)
+            public static SubmodelElementWrapper CreateFor(SubmodelElement? sme)
             {
                 var res = new SubmodelElementWrapper();
                 res.submodelElement = sme;
                 return res;
             }
 
-            public static Referable FindReferableByReference(
+            public static Referable? FindReferableByReference(
                 List<SubmodelElementWrapper> wrappers, Reference rf, int keyIndex)
             {
                 // first index needs to exist ..
@@ -2974,11 +2974,11 @@ containedElements == null) return null; return containedElements[index];
             public List<SubmodelElementWrapper> submodelElements = null;
             [XmlIgnore]
             [JsonProperty(PropertyName = "submodelElements")]
-            public SubmodelElement[] JsonSubmodelElements
+            public SubmodelElement?[] JsonSubmodelElements
             {
                 get
                 {
-                    var res = new List<SubmodelElement>();
+                    var res = new List<SubmodelElement?>();
                     if (submodelElements != null)
                         foreach (var smew in submodelElements)
                             res.Add(smew.submodelElement);
@@ -3005,7 +3005,7 @@ containedElements == null) return null; return containedElements[index];
 
             public Submodel() : base() { }
 
-            public Submodel(Submodel src, bool shallowCopy = false)
+            public Submodel(Submodel? src, bool shallowCopy = false)
                 : base(src)
             {
                 if (src.hasDataSpecification != null)
@@ -3051,7 +3051,7 @@ containedElements == null) return null; return containedElements[index];
                 return l;
             }
 
-            public void Add(SubmodelElement se)
+            public void Add(SubmodelElement? se)
             {
                 if (submodelElements == null)
                     submodelElements = new List<SubmodelElementWrapper>();
@@ -3148,7 +3148,7 @@ containedElements == null) return null; return containedElements[index];
 
             // Parents stuff
 
-            private static void SetParentsForSME(Referable parent, SubmodelElement se)
+            private static void SetParentsForSME(Referable? parent, SubmodelElement? se)
             {
                 se.parent = parent;
                 var smc = se as SubmodelElementCollection;
@@ -3175,7 +3175,7 @@ containedElements == null) return null; return containedElements[index];
 
             public DataElement() { }
 
-            public DataElement(DataElement src)
+            public DataElement(DataElement? src)
                 : base(src)
             { }
 
@@ -3233,7 +3233,7 @@ containedElements == null) return null; return containedElements[index];
 
             public Property() { }
 
-            public Property(Property src)
+            public Property(Property? src)
                 : base(src)
             {
                 this.valueType = src.valueType;
@@ -3285,7 +3285,7 @@ containedElements == null) return null; return containedElements[index];
 
             public Blob() { }
 
-            public Blob(Blob src)
+            public Blob(Blob? src)
                 : base(src)
             {
                 this.mimeType = src.mimeType;
@@ -3331,7 +3331,7 @@ containedElements == null) return null; return containedElements[index];
 
             public File() { }
 
-            public File(File src)
+            public File(File? src)
                 : base(src)
             {
                 this.mimeType = src.mimeType;
@@ -3393,7 +3393,7 @@ containedElements == null) return null; return containedElements[index];
 
             public ReferenceElement() { }
 
-            public ReferenceElement(ReferenceElement src)
+            public ReferenceElement(ReferenceElement? src)
                 : base(src)
             {
                 if (src.value != null)
@@ -3439,7 +3439,7 @@ containedElements == null) return null; return containedElements[index];
 
             public RelationshipElement() { }
 
-            public RelationshipElement(RelationshipElement src)
+            public RelationshipElement(RelationshipElement? src)
                 : base(src)
             {
                 if (src.first != null)
@@ -3484,11 +3484,11 @@ containedElements == null) return null; return containedElements[index];
 
             [XmlIgnore]
             [JsonProperty(PropertyName = "value")]
-            public SubmodelElement[] JsonValue
+            public SubmodelElement?[] JsonValue
             {
                 get
                 {
-                    var res = new List<SubmodelElement>();
+                    var res = new List<SubmodelElement?>();
                     if (value != null)
                         foreach (var smew in value)
                             res.Add(smew.submodelElement);
@@ -3517,7 +3517,7 @@ containedElements == null) return null; return containedElements[index];
 
             public SubmodelElementCollection() { }
 
-            public SubmodelElementCollection(SubmodelElementCollection src, bool shallowCopy = false)
+            public SubmodelElementCollection(SubmodelElementCollection? src, bool shallowCopy = false)
                 : base(src)
             {
                 this.ordered = src.ordered;
@@ -3541,7 +3541,7 @@ containedElements == null) return null; return containedElements[index];
                 this.ordered = ordered;
             }
 
-            public void Add(SubmodelElement se)
+            public void Add(SubmodelElement? se)
             {
                 if (value == null)
                     value = new List<SubmodelElementWrapper>();
@@ -3593,13 +3593,13 @@ containedElements == null) return null; return containedElements[index];
                 this.kind = new Kind("Type");
             }
 
-            public OperationVariable(OperationVariable src, bool shallowCopy = false)
+            public OperationVariable(OperationVariable? src, bool shallowCopy = false)
                 : base(src)
             {
                 this.value = new SubmodelElementWrapper(src.value.submodelElement, shallowCopy);
             }
 
-            public OperationVariable(SubmodelElement elem)
+            public OperationVariable(SubmodelElement? elem)
                 : base()
             {
                 this.value = new SubmodelElementWrapper(elem);
@@ -3691,7 +3691,7 @@ containedElements == null) return null; return containedElements[index];
 
             public Operation() { }
 
-            public Operation(Operation src)
+            public Operation(Operation? src)
                 : base(src)
             {
                 for (int i = 0; i < 2; i++)

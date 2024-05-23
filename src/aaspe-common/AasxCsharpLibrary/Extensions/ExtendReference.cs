@@ -73,12 +73,12 @@ namespace Extensions
         /// </summary>
         /// <param name="lk"></param>
         /// <returns></returns>
-        public static Reference CreateNew(List<IKey> lk)
+        public static Reference CreateNew(List<IKey>? lk)
         {
             var res = new Reference(ReferenceTypes.ExternalReference, new List<IKey>());
             if (lk == null)
                 return res;
-            res.Keys.AddRange(lk.Copy());
+            res.Keys.AddRange(ExtendISubmodelElement.Copy(lk));
             res.Type = res.GuessType();
             return res;
         }
@@ -163,7 +163,7 @@ namespace Extensions
             return false;
         }
 
-        public static bool Matches(this IReference reference, IReference otherReference, MatchMode matchMode = MatchMode.Strict)
+        public static bool Matches(this IReference reference, IReference? otherReference, MatchMode matchMode = MatchMode.Strict)
         {
             if (reference.Keys == null || reference.Keys.Count == 0
                 || otherReference?.Keys == null || otherReference.Keys.Count == 0

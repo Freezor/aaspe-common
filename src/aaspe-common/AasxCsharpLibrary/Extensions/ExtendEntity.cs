@@ -49,7 +49,7 @@ namespace aaspe_common.AasxCsharpLibrary.Extensions
             {
                 if (entity != null) entity.Statements ??= new List<ISubmodelElement>();
 
-                foreach (var outputSubmodelElement in from submodelElementWrapper in sourceEntity.statements select submodelElementWrapper.submodelElement into sourceSubmodelElement let outputSubmodelElement = (ISubmodelElement?) null select outputSubmodelElement.ConvertFromV20(sourceSubmodelElement))
+                foreach (var outputSubmodelElement in from submodelElementWrapper in sourceEntity.statements select submodelElementWrapper.submodelElement into sourceSubmodelElement let outputSubmodelElement = (ISubmodelElement?) null select ExtendISubmodelElement.ConvertFromV20(sourceSubmodelElement))
                 {
                     entity.Statements.Add(outputSubmodelElement);
                 }
@@ -80,16 +80,16 @@ namespace aaspe_common.AasxCsharpLibrary.Extensions
             return default;
         }
 
-        public static T CreateSMEForCD<T>(
+        public static T? CreateSMEForCD<T>(
             this Entity ent,
-            ConceptDescription conceptDescription, string category = null, string idShort = null,
+            ConceptDescription? conceptDescription, string category = null, string idShort = null,
             string idxTemplate = null, int maxNum = 999, bool addSme = false, bool isTemplate = false)
             where T : ISubmodelElement
         {
             if (ent.Statements == null)
                 ent.Statements = new List<ISubmodelElement>();
             return ent.Statements.CreateSMEForCD<T>(
-                conceptDescription, category, idShort, idxTemplate, maxNum, addSme, isTemplate);
+                conceptDescription, category, idShort, idxTemplate, maxNum, addSme);
         }
     }
 }

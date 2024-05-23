@@ -8,6 +8,7 @@ This source code may use other Open Source software components (see LICENSE.txt)
 */
 
 using System.Text.RegularExpressions;
+using AasxCompatibilityModels;
 using AdminShellNS;
 using AdminShellNS.Extensions;
 using Extensions;
@@ -40,7 +41,7 @@ public static class ExtendAssetAdministrationShell
 
     #endregion
 
-    public static bool HasSubmodelReference(this IAssetAdministrationShell assetAdministrationShell, Reference submodelReference)
+    public static bool HasSubmodelReference(this IAssetAdministrationShell assetAdministrationShell, Reference? submodelReference)
     {
         return assetAdministrationShell.Submodels.Any(aasSubmodelReference => aasSubmodelReference.Matches(submodelReference));
     }
@@ -58,7 +59,7 @@ public static class ExtendAssetAdministrationShell
     }
 
     public static AssetAdministrationShell ConvertFromV10(this AssetAdministrationShell assetAdministrationShell,
-        AasxCompatibilityModels.AdminShellV10.AdministrationShell sourceAas)
+        AdminShellV10.AdministrationShell? sourceAas)
     {
         if (string.IsNullOrEmpty(sourceAas.idShort))
         {

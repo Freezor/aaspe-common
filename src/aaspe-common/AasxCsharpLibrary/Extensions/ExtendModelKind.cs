@@ -12,7 +12,7 @@ namespace Extensions
 {
     public static class ExtendModelKind
     {
-        public static void Validate(this ModellingKind modelingKind, AasValidationRecordList results, IReferable container)
+        public static void Validate(this ModellingKind modelingKind, AasValidationRecordList? results, IReferable container)
         {
             // access
             if (results == null || container == null)

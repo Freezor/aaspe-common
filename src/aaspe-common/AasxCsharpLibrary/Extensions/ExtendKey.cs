@@ -6,13 +6,12 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 
 This source code may use other Open Source software components (see LICENSE.txt).
 */
-using AdminShellNS;
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 
-namespace Extensions
+using System.Text.RegularExpressions;
+using AdminShellNS;
+using Extensions;
+
+namespace aaspe_common.AasxCsharpLibrary.Extensions
 {
     public static class ExtendKey
     {
@@ -85,7 +84,7 @@ namespace Extensions
             return false;
         }
 
-        public static AasValidationAction Validate(this IKey key, AasValidationRecordList results, IReferable container)
+        public static AasValidationAction Validate(this IKey key, AasValidationRecordList? results, IReferable container)
         {
             // access
             if (results == null || container == null)

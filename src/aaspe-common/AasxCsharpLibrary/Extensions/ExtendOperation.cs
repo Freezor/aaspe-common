@@ -9,6 +9,7 @@ This source code may use other Open Source software components (see LICENSE.txt)
 using AdminShellNS;
 using System.Collections.Generic;
 using System.Linq;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 
 namespace Extensions
 {
@@ -50,7 +51,7 @@ namespace Extensions
             return ov;
         }
 
-        public static EnumerationPlacmentBase GetChildrenPlacement(this IOperation operation, ISubmodelElement child)
+        public static EnumerationPlacmentBase? GetChildrenPlacement(this IOperation operation, ISubmodelElement child)
         {
             // trivial
             if (child == null)
@@ -123,7 +124,7 @@ namespace Extensions
         #endregion
 
         public static IOperation UpdateFrom(
-            this IOperation elem, ISubmodelElement source)
+            this IOperation elem, ISubmodelElement? source)
         {
             if (source == null)
                 return elem;
@@ -134,7 +135,7 @@ namespace Extensions
             {
                 if (srcColl.Value != null)
                 {
-                    List<OperationVariable> operationVariables = srcColl.Value.Copy().Select(
+                    List<OperationVariable> operationVariables = ExtendISubmodelElement.Copy(srcColl.Value).Select(
                         (isme) => new OperationVariable(isme)).ToList();
                     elem.InputVariables = operationVariables.ConvertAll(op => (IOperationVariable)op);
                 }
@@ -145,7 +146,7 @@ namespace Extensions
             {
                 if (srcList.Value != null)
                 {
-                    List<OperationVariable> operationVariables = srcList.Value.Copy().Select(
+                    List<OperationVariable> operationVariables = ExtendISubmodelElement.Copy(srcList.Value).Select(
                         (isme) => new OperationVariable(isme)).ToList();
                     elem.InputVariables = operationVariables.ConvertAll(op => (IOperationVariable)op);
                 }

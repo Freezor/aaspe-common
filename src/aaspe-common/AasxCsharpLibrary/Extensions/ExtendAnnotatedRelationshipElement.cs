@@ -50,7 +50,7 @@ public static class ExtendAnnotatedRelationshipElement
     {
         if (sourceAnnotedRelElement.annotations.IsNullOrEmpty()) return annotatedRelationshipElement;
         annotatedRelationshipElement.Annotations ??= new List<IDataElement>();
-        foreach (var outputSubmodelElement in from submodelElementWrapper in sourceAnnotedRelElement.annotations select submodelElementWrapper.submodelElement into sourceSubmodelElement let outputSubmodelElement = (ISubmodelElement?) null select outputSubmodelElement.ConvertFromV20(sourceSubmodelElement))
+        foreach (var outputSubmodelElement in from submodelElementWrapper in sourceAnnotedRelElement.annotations select submodelElementWrapper.submodelElement into sourceSubmodelElement let outputSubmodelElement = (ISubmodelElement?) null select ExtendISubmodelElement.ConvertFromV20(sourceSubmodelElement))
         {
             annotatedRelationshipElement.Annotations.Add((IDataElement)outputSubmodelElement);
         }
@@ -80,7 +80,7 @@ public static class ExtendAnnotatedRelationshipElement
     }
 
     public static AnnotatedRelationshipElement UpdateFrom(
-        this AnnotatedRelationshipElement elem, ISubmodelElement source)
+        this AnnotatedRelationshipElement elem, ISubmodelElement? source)
     {
         ((ISubmodelElement)elem).UpdateFrom(source);
 

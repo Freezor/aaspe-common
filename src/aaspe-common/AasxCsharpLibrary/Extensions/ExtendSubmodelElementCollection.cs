@@ -10,6 +10,7 @@ using AdminShellNS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 
 namespace Extensions
 {
@@ -28,7 +29,7 @@ namespace Extensions
         /// <param name="includeThis">Include this element as well. <c>parents</c> will then 
         /// include this element as well!</param>
         public static void RecurseOnReferables(this SubmodelElementCollection submodelElementCollection,
-            object state, Func<object, List<IReferable>, IReferable, bool> lambda,
+            object state, Func<object, List<IReferable>, IReferable, bool>? lambda,
             bool includeThis = false)
         {
             var parents = new List<IReferable>();
@@ -72,7 +73,7 @@ namespace Extensions
             return (T)submodelElement;
         }
 
-        public static SubmodelElementCollection ConvertFromV10(this SubmodelElementCollection submodelElementCollection, AasxCompatibilityModels.AdminShellV10.SubmodelElementCollection sourceSmeCollection, bool shallowCopy = false)
+        public static SubmodelElementCollection? ConvertFromV10(this SubmodelElementCollection? submodelElementCollection, AasxCompatibilityModels.AdminShellV10.SubmodelElementCollection sourceSmeCollection, bool shallowCopy = false)
         {
             if (sourceSmeCollection == null)
                 return null;
@@ -84,10 +85,10 @@ namespace Extensions
                 foreach (var submodelElementWrapper in sourceSmeCollection.value)
                 {
                     var sourceSubmodelElement = submodelElementWrapper.submodelElement;
-                    ISubmodelElement outputSubmodelElement = null;
+                    ISubmodelElement? outputSubmodelElement = null;
                     if (sourceSubmodelElement != null)
                     {
-                        outputSubmodelElement = outputSubmodelElement.ConvertFromV10(sourceSubmodelElement, shallowCopy);
+                        outputSubmodelElement = ExtendISubmodelElement.ConvertFromV10(sourceSubmodelElement, shallowCopy);
                     }
 
                     submodelElementCollection.Value.Add(outputSubmodelElement);
@@ -112,7 +113,7 @@ namespace Extensions
                     ISubmodelElement? outputSubmodelElement = null;
                     if (sourceSubmodelElement != null)
                     {
-                        outputSubmodelElement = outputSubmodelElement.ConvertFromV20(sourceSubmodelElement, shallowCopy);
+                        outputSubmodelElement = ExtendISubmodelElement.ConvertFromV20(sourceSubmodelElement, shallowCopy);
                     }
 
                     submodelElementCollection.Value.Add(outputSubmodelElement);
@@ -141,20 +142,20 @@ namespace Extensions
             submodelElementCollection.Value.Insert(index, submodelElement);
         }
 
-        public static T CreateSMEForCD<T>(
+        public static T? CreateSMEForCD<T>(
             this SubmodelElementCollection smc,
-            ConceptDescription conceptDescription, string category = null, string idShort = null,
+            ConceptDescription? conceptDescription, string category = null, string idShort = null,
             string idxTemplate = null, int maxNum = 999, bool addSme = false, bool isTemplate = false)
                 where T : ISubmodelElement
         {
             if (smc.Value == null)
                 smc.Value = new List<ISubmodelElement>();
             return smc.Value.CreateSMEForCD<T>(
-                conceptDescription, category, idShort, idxTemplate, maxNum, addSme, isTemplate);
+                conceptDescription, category, idShort, idxTemplate, maxNum, addSme);
         }
 
         public static SubmodelElementCollection UpdateFrom(
-            this SubmodelElementCollection elem, ISubmodelElement source)
+            this SubmodelElementCollection elem, ISubmodelElement? source)
         {
             if (source == null)
                 return elem;
@@ -164,7 +165,7 @@ namespace Extensions
             if (source is SubmodelElementList srcList)
             {
                 if (srcList.Value != null)
-                    elem.Value = srcList.Value.Copy();
+                    elem.Value = ExtendISubmodelElement.Copy(srcList.Value);
             }
 
             if (source is Operation srcOp)

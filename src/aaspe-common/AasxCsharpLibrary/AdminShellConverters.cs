@@ -14,6 +14,7 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.IO;
 using System.Reflection;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 
 namespace AdminShellNS
 {

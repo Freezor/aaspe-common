@@ -9,6 +9,7 @@ This source code may use other Open Source software components (see LICENSE.txt)
 using Extensions;
 using System.Collections.Generic;
 using System.Linq;
+using aaspe_common.AasxCsharpLibrary.Extensions;
 using AdminShellNS;
 using Aas = AasCore.Aas3_0;
 
@@ -93,7 +94,7 @@ namespace Extensions
             return string.Join(delimiter, keys.Select((k) => k.ToStringExtended(format)));
         }
 
-        public static void Validate(this List<IKey> keys, AasValidationRecordList results,
+        public static void Validate(this List<IKey> keys, AasValidationRecordList? results,
                 IReferable container)
         {
             // access

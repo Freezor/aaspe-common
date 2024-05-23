@@ -337,7 +337,7 @@ namespace AdminShellNS
             return null;
         }
 
-        public static ISubmodelElement CreateSubmodelElementFromEnum(AasSubmodelElements smeEnum, ISubmodelElement sourceSme = null)
+        public static ISubmodelElement CreateSubmodelElementFromEnum(AasSubmodelElements smeEnum, ISubmodelElement? sourceSme = null)
         {
             switch (smeEnum)
             {

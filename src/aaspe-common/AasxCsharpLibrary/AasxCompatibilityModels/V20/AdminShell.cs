@@ -1715,7 +1715,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public Description(AasxCompatibilityModels.AdminShellV10.Description src)
+            public Description(AdminShellV10.Description? src)
             {
                 if (src != null)
                     foreach (var ls in src.langString)
@@ -2210,7 +2210,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public Referable(AasxCompatibilityModels.AdminShellV10.Referable src)
+            public Referable(AdminShellV10.Referable? src)
             {
                 if (src == null)
                     return;
@@ -2573,7 +2573,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public Identifiable(AasxCompatibilityModels.AdminShellV10.Identifiable src)
+            public Identifiable(AdminShellV10.Identifiable? src)
                 : base(src)
             {
                 if (src.identification != null)
@@ -2740,7 +2740,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public AdministrationShell(AasxCompatibilityModels.AdminShellV10.AdministrationShell src)
+            public AdministrationShell(AdminShellV10.AdministrationShell? src)
                 : base(src)
             {
                 if (src.hasDataSpecification != null)
@@ -2954,7 +2954,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public Asset(AasxCompatibilityModels.AdminShellV10.Asset src)
+            public Asset(AdminShellV10.Asset? src)
                 : base(src)
             {
                 if (src != null)
@@ -3088,7 +3088,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public View(AasxCompatibilityModels.AdminShellV10.View src)
+            public View(AdminShellV10.View? src)
                 : base(src)
             {
                 if (src.semanticId != null)
@@ -3329,7 +3329,7 @@ namespace AasxCompatibilityModels
 
             public LangStringSetIEC61360(ListOfLangStr lol) : base(lol) { }
 
-            public LangStringSetIEC61360(LangStringSetIEC61360 src)
+            public LangStringSetIEC61360(LangStringSetIEC61360? src)
             {
                 foreach (var ls in src)
                     this.Add(new LangStr(ls));
@@ -3464,7 +3464,7 @@ namespace AasxCompatibilityModels
             // members
             // TODO (MIHO, 2020-08-27): According to spec, cardinality is [1..1][1..n]
             // these cardinalities are NOT MAINTAINED in ANY WAY by the system
-            public LangStringSetIEC61360 preferredName = new LangStringSetIEC61360();
+            public LangStringSetIEC61360? preferredName = new LangStringSetIEC61360();
 
             // TODO (MIHO, 2020-08-27): According to spec, cardinality is [0..1][1..n]
             // these cardinalities are NOT MAINTAINED in ANY WAY by the system
@@ -3499,7 +3499,7 @@ namespace AasxCompatibilityModels
 
             // TODO (MIHO, 2020-08-27): According to spec, cardinality is [0..1][1..n]
             // these cardinalities are NOT MAINTAINED in ANY WAY by the system
-            public LangStringSetIEC61360 definition = null;
+            public LangStringSetIEC61360? definition = null;
 
             // getter / setters
 
@@ -3832,7 +3832,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public ConceptDescription(AasxCompatibilityModels.AdminShellV10.ConceptDescription src)
+            public ConceptDescription(AdminShellV10.ConceptDescription? src)
                 : base(src)
             {
                 if (src.embeddedDataSpecification != null)
@@ -5631,7 +5631,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public SubmodelElement(AasxCompatibilityModels.AdminShellV10.SubmodelElement src)
+            public SubmodelElement(AdminShellV10.SubmodelElement? src)
                 : base(src)
             {
                 if (src.hasDataSpecification != null)
@@ -5912,7 +5912,7 @@ namespace AasxCompatibilityModels
 
 #if !DoNotUseAasxCompatibilityModels
             public SubmodelElementWrapper(
-                AasxCompatibilityModels.AdminShellV10.SubmodelElement src, bool shallowCopy = false)
+                AdminShellV10.SubmodelElement? src, bool shallowCopy = false)
             {
                 if (src is AasxCompatibilityModels.AdminShellV10.SubmodelElementCollection)
                     this.submodelElement = new SubmodelElementCollection(
@@ -6949,7 +6949,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public Submodel(AasxCompatibilityModels.AdminShellV10.Submodel src, bool shallowCopy = false)
+            public Submodel(AdminShellV10.Submodel? src, bool shallowCopy = false)
                 : base(src)
             {
                 if (src.hasDataSpecification != null)
@@ -7316,7 +7316,7 @@ namespace AasxCompatibilityModels
             public DataElement(DataElement src) : base(src) { }
 
 #if !DoNotUseAasxCompatibilityModels
-            public DataElement(AasxCompatibilityModels.AdminShellV10.DataElement src)
+            public DataElement(AdminShellV10.DataElement? src)
                 : base(src)
             { }
 #endif
@@ -7391,7 +7391,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public Property(AasxCompatibilityModels.AdminShellV10.Property src)
+            public Property(AdminShellV10.Property? src)
                 : base(src)
             {
                 if (src == null)
@@ -7678,7 +7678,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public Blob(AasxCompatibilityModels.AdminShellV10.Blob src)
+            public Blob(AdminShellV10.Blob? src)
                 : base(src)
             {
                 if (src == null)
@@ -7747,7 +7747,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public File(AasxCompatibilityModels.AdminShellV10.File src)
+            public File(AdminShellV10.File? src)
                 : base(src)
             {
                 if (src == null)
@@ -7830,7 +7830,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public ReferenceElement(AasxCompatibilityModels.AdminShellV10.ReferenceElement src)
+            public ReferenceElement(AdminShellV10.ReferenceElement? src)
                 : base(src)
             {
                 if (src == null)
@@ -7894,7 +7894,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public RelationshipElement(AasxCompatibilityModels.AdminShellV10.RelationshipElement src)
+            public RelationshipElement(AdminShellV10.RelationshipElement? src)
                 : base(src)
             {
                 if (src == null)
@@ -8192,7 +8192,7 @@ namespace AasxCompatibilityModels
 
 #if !DoNotUseAasxCompatibilityModels
             public SubmodelElementCollection(
-                AasxCompatibilityModels.AdminShellV10.SubmodelElementCollection src, bool shallowCopy = false)
+                AdminShellV10.SubmodelElementCollection? src, bool shallowCopy = false)
                 : base(src)
             {
                 if (src == null)
@@ -8612,7 +8612,7 @@ namespace AasxCompatibilityModels
             }
 
 #if !DoNotUseAasxCompatibilityModels
-            public Operation(AasxCompatibilityModels.AdminShellV10.Operation src)
+            public Operation(AdminShellV10.Operation? src)
                 : base(src)
             {
                 for (int i = 0; i < 2; i++)

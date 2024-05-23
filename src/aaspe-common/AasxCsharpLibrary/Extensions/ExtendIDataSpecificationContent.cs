@@ -6,72 +6,58 @@ This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
 
 This source code may use other Open Source software components (see LICENSE.txt).
 */
+
 using AdminShellNS;
-using System.Collections.Generic;
+using Extensions;
 
-namespace Extensions
+namespace aaspe_common.AasxCsharpLibrary.Extensions;
+
+public static class ExtendIDataSpecificationContent
 {
-    public static class ExtendIDataSpecificationContent
+    public enum ContentTypes { NoInfo, Iec61360, PhysicalUnit }
+
+    public static Key GetKeyForIec61360()
     {
-        public enum ContentTypes { NoInfo, Iec61360, PhysicalUnit }
+        return new Key(KeyTypes.GlobalReference,
+            "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0");
+    }
 
-        public static Key GetKeyForIec61360()
-        {
-            return new Key(KeyTypes.GlobalReference,
-                "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0");
-        }
+    public static Reference GetReferenceForIec61360()
+    {
+        return new Reference(ReferenceTypes.ExternalReference, new List<IKey> { GetKeyForIec61360() });
+    }
 
-        public static Reference GetReferencForIec61360()
-        {
-            return new Reference(ReferenceTypes.ExternalReference, new List<IKey> { GetKeyForIec61360() });
-        }
+    public static Key GetKeyForPhysicalUnit()
+    {
+        return new Key(KeyTypes.GlobalReference,
+            "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationPhysicalUnit/3/0");
+    }
 
-        public static Key GetKeyForPhysicalUnit()
+    public static Key GetKeyFor(ContentTypes ct)
+    {
+        return ct switch
         {
-            return new Key(KeyTypes.GlobalReference,
-                "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationPhysicalUnit/3/0");
-        }
+            ContentTypes.Iec61360 => GetKeyForIec61360(),
+            ContentTypes.PhysicalUnit => GetKeyForPhysicalUnit(),
+            _ => null
+        };
+    }
 
-        public static Key GetKeyFor(ContentTypes ct)
-        {
-            if (ct == ContentTypes.Iec61360)
-                return GetKeyForIec61360();
-            if (ct == ContentTypes.PhysicalUnit)
-                return GetKeyForPhysicalUnit();
-            return null;
-        }
+    public static IDataSpecificationContent? ContentFactoryFor(ContentTypes ct)
+    {
+        if (ct == ContentTypes.Iec61360)
+            return new DataSpecificationIec61360(
+                new List<ILangStringPreferredNameTypeIec61360>());
+        return null;
+    }
 
-        public static IDataSpecificationContent ContentFactoryFor(ContentTypes ct)
-        {
-            if (ct == ContentTypes.Iec61360)
-                return new DataSpecificationIec61360(
-                    new List<ILangStringPreferredNameTypeIec61360>());
-            //TODO (jtikekar, 0000-00-00): DataSpecificationPhysicalUnit
-#if SupportDataSpecificationPhysicalUnit
-            if (ct == ContentTypes.PhysicalUnit)
-                return new DataSpecificationPhysicalUnit("", "", null); 
-#endif
-            return null;
-        }
+    public static ContentTypes GuessContentTypeFor(IReference rf)
+    {
+        return AdminShellUtil.GetEnumValues<ContentTypes>(new[] {ContentTypes.NoInfo}).FirstOrDefault(v => rf?.MatchesExactlyOneKey(GetKeyFor(v)) == true);
+    }
 
-        public static ContentTypes GuessContentTypeFor(IReference rf)
-        {
-            foreach (var v in AdminShellUtil.GetEnumValues<ContentTypes>(new[] { ContentTypes.NoInfo }))
-                if (rf?.MatchesExactlyOneKey(GetKeyFor(v)) == true)
-                    return v;
-            return ContentTypes.NoInfo;
-        }
-
-        public static ContentTypes GuessContentTypeFor(IDataSpecificationContent content)
-        {
-            if (content is DataSpecificationIec61360)
-                return ContentTypes.Iec61360;
-            //TODO (jtikekar, 0000-00-00): DataSpecificationPhysicalUnit
-#if SupportDataSpecificationPhysicalUnit
-            if (content is DataSpecificationPhysicalUnit)
-                return ContentTypes.PhysicalUnit; 
-#endif
-            return ContentTypes.NoInfo;
-        }
+    public static ContentTypes GuessContentTypeFor(IDataSpecificationContent content)
+    {
+        return content is DataSpecificationIec61360 ? ContentTypes.Iec61360 : ContentTypes.NoInfo;
     }
 }

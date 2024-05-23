@@ -30,7 +30,7 @@ namespace Extensions
         /// <param name="includeThis">Include this element as well. <c>parents</c> will then 
         /// include this element as well!</param>
         public static void RecurseOnReferables(this Submodel submodel,
-            object state, Func<object, List<IReferable>, IReferable, bool> lambda,
+            object state, Func<object, List<IReferable>, IReferable, bool>? lambda,
             bool includeThis = false)
         {
             var parents = new List<IReferable>();
@@ -105,7 +105,7 @@ namespace Extensions
         }
 
         #endregion
-        public static void Validate(this Submodel submodel, AasValidationRecordList results)
+        public static void Validate(this Submodel submodel, AasValidationRecordList? results)
         {
             // access
             if (results == null)
@@ -198,10 +198,10 @@ namespace Extensions
                 foreach (var submodelElementWrapper in sourceSubmodel.submodelElements)
                 {
                     var sourceSubmodelELement = submodelElementWrapper.submodelElement;
-                    ISubmodelElement outputSubmodelElement = null;
+                    ISubmodelElement? outputSubmodelElement = null;
                     if (sourceSubmodelELement != null)
                     {
-                        outputSubmodelElement = outputSubmodelElement.ConvertFromV10(sourceSubmodelELement, shallowCopy);
+                        outputSubmodelElement = ExtendISubmodelElement.ConvertFromV10(sourceSubmodelELement, shallowCopy);
                         submodel.SubmodelElements.Add(outputSubmodelElement);
                     }
 
@@ -284,7 +284,7 @@ namespace Extensions
                     ISubmodelElement? outputSubmodelElement = null;
                     if (sourceSubmodelELement != null)
                     {
-                        outputSubmodelElement = outputSubmodelElement.ConvertFromV20(sourceSubmodelELement, shallowCopy);
+                        outputSubmodelElement = ExtendISubmodelElement.ConvertFromV20(sourceSubmodelELement, shallowCopy);
                         sm.SubmodelElements.Add(outputSubmodelElement);
                     }
 
@@ -455,16 +455,16 @@ namespace Extensions
             submodel.SubmodelElements.Insert(index, submodelElement);
         }
 
-        public static T CreateSMEForCD<T>(
+        public static T? CreateSMEForCD<T>(
             this Submodel sm,
-            ConceptDescription conceptDescription, string category = null, string idShort = null,
+            ConceptDescription? conceptDescription, string category = null, string idShort = null,
             string idxTemplate = null, int maxNum = 999, bool addSme = false, bool isTemplate = false)
                 where T : ISubmodelElement
         {
             if (sm.SubmodelElements == null)
                 sm.SubmodelElements = new List<ISubmodelElement>();
             return sm.SubmodelElements.CreateSMEForCD<T>(
-                conceptDescription, category, idShort, idxTemplate, maxNum, addSme, isTemplate);
+                conceptDescription, category, idShort, idxTemplate, maxNum, addSme);
         }
 
     }
