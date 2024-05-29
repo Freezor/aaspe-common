@@ -18,7 +18,7 @@ public static class ExtendIClass
     /// <param name="objectType">Hint for IClass subtype</param>
     /// <param name="node">JSON representation</param>
     /// <returns>Null, if not a known IClass subtype</returns>
-    public static IClass IClassFrom(Type objectType, System.Text.Json.Nodes.JsonNode node)
+    public static IClass? IClassFrom(Type objectType, System.Text.Json.Nodes.JsonNode node)
     {
         if (typeof(IReference).IsAssignableFrom(objectType))
             return Jsonization.Deserialize.ReferenceFrom(node);
