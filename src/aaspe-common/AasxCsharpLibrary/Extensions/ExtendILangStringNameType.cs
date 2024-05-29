@@ -1,26 +1,41 @@
-﻿/*
-Copyright (c) 2018-2023 Festo SE & Co. KG <https://www.festo.com/net/de_de/Forms/web/contact_international>
-Author: Michael Hoffmeister
+﻿using System.Collections.Generic;
+using System.Linq;
 
-This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
-
-This source code may use other Open Source software components (see LICENSE.txt).
-*/
-
-namespace aaspe_common.AasxCsharpLibrary.Extensions;
-
-public static class ExtendILangStringNameType
+namespace aaspe_common.AasxCsharpLibrary.Extensions
 {
-    public static string ToStringExtended(this ILangStringNameType ls, int fmt)
+    /// <summary>
+    /// Provides extension methods for ILangStringNameType.
+    /// </summary>
+    public static class ExtendILangStringNameType
     {
-        return fmt == 2
-            ? $"{ls.Text}@{ls.Language}"
-            : $"[{ls.Language},{ls.Text}]";
-    }
+        /// <summary>
+        /// Converts an ILangStringNameType to a string with extended formatting.
+        /// Format 1 = [Language,Name]
+        /// Format 2 = Language@Name
+        /// </summary>
+        /// <param name="langStringNameType">The ILangStringNameType object.</param>
+        /// <param name="format">The format to use (1 or 2).</param>
+        /// <returns>The formatted string.</returns>
+        public static string ToStringExtended(this ILangStringNameType langStringNameType, int format)
+        {
+            return format == 2
+                ? $"{langStringNameType.Text}@{langStringNameType.Language}"
+                : $"[{langStringNameType.Language},{langStringNameType.Text}]";
+        }
 
-    public static string ToStringExtended(this IEnumerable<ILangStringNameType> elems,
-        int format = 1, string delimiter = ",")
-    {
-        return string.Join(delimiter, elems.Select((k) => k.ToStringExtended(format)));
+        /// <summary>
+        /// Converts a collection of ILangStringNameType objects to a string with extended formatting.
+        /// Format 1 = [Language1,Name1],[Language2,Name2],...
+        /// Format 2 = Language1@Name1,Language2@Name2,...
+        /// </summary>
+        /// <param name="langStringNameTypes">The collection of ILangStringNameType objects.</param>
+        /// <param name="format">The format to use (1 or 2).</param>
+        /// <param name="delimiter">The delimiter to separate the items.</param>
+        /// <returns>The formatted string.</returns>
+        public static string ToStringExtended(this IEnumerable<ILangStringNameType> langStringNameTypes,
+            int format = 1, string delimiter = ",")
+        {
+            return string.Join(delimiter, langStringNameTypes.Select(k => k.ToStringExtended(format)));
+        }
     }
 }
