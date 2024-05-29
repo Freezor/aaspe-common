@@ -1,5 +1,7 @@
 ﻿using AasCore.Aas3_0;
 using aaspe_common.AasxCsharpLibrary.Extensions;
+using AutoFixture;
+using FluentAssertions;
 
 namespace aaspe_common_tests.AasxCsharpLibrary.Extensions;
 

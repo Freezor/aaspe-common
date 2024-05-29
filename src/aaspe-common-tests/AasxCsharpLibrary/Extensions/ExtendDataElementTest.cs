@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 
 namespace aaspe_common_tests.AasxCsharpLibrary.Extensions;
 
-[TestSubject(typeof(ExtendDataElement))]
 public class ExtendDataElementTests
 {
     [Fact]
