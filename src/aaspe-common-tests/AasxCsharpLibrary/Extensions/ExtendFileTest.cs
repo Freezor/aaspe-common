@@ -4,6 +4,7 @@ using AutoFixture.AutoMoq;
 
 namespace aaspe_common_tests.AasxCsharpLibrary.Extensions;
 
+[TestSubject(typeof(ExtendFileTests))]
 public class ExtendFileTests
 {
     private readonly IFixture _fixture = new Fixture().Customize(new AutoMoqCustomization());

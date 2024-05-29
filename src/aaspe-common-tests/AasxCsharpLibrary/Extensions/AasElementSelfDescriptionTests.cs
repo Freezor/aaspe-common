@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace aaspe_common_tests.AasxCsharpLibrary.Extensions;
 
+[TestSubject(typeof(AasElementSelfDescriptionTests))]
 public class AasElementSelfDescriptionTests
 {
     private readonly IFixture _fixture = new Fixture();

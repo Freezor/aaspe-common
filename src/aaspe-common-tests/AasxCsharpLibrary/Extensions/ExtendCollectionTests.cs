@@ -2,6 +2,7 @@
 
 namespace aaspe_common_tests.AasxCsharpLibrary.Extensions;
 
+[TestSubject(typeof(ExtendCollectionTests))]
 public class ExtendCollectionTests
 {
     [Fact]

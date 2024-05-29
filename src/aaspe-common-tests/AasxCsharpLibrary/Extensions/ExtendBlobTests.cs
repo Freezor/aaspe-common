@@ -6,6 +6,7 @@ using File = AasCore.Aas3_0.File;
 
 namespace aaspe_common_tests.AasxCsharpLibrary.Extensions;
 
+[TestSubject(typeof(ExtendBlobTests))]
 public class ExtendBlobTests
 {
     private readonly IFixture _fixture;

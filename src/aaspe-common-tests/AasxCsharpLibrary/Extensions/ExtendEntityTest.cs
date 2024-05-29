@@ -4,6 +4,7 @@ using AutoFixture.AutoMoq;
 
 namespace aaspe_common_tests.AasxCsharpLibrary.Extensions;
 
+[TestSubject(typeof(ExtendEntityTests))]
 public class ExtendEntityTests
 {
     private readonly Fixture _fixture;
