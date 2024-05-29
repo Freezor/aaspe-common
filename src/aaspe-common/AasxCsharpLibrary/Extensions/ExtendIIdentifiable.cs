@@ -1,28 +1,33 @@
-﻿/*
-Copyright (c) 2018-2023 Festo SE & Co. KG <https://www.festo.com/net/de_de/Forms/web/contact_international>
-Author: Michael Hoffmeister
-
-This source code is licensed under the Apache License 2.0 (see LICENSE.txt).
-
-This source code may use other Open Source software components (see LICENSE.txt).
-*/
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace aaspe_common.AasxCsharpLibrary.Extensions;
 
+/// <summary>
+/// Provides extension methods for types implementing the IIdentifiable interface.
+/// </summary>
 public static class ExtendIIdentifiable
 {
-    #region List of Identifiers
-
+    /// <summary>
+    /// Converts a collection of IIdentifiable objects to a string with specified delimiter.
+    /// </summary>
+    /// <param name="identifiables">Collection of IIdentifiable objects.</param>
+    /// <param name="delimiter">Delimiter to separate the identifiers.</param>
+    /// <returns>A string containing identifiers separated by the delimiter.</returns>
     public static string ToStringExtended(this IEnumerable<IIdentifiable> identifiables, string delimiter = ",")
     {
-        return string.Join(delimiter, identifiables.Select((x) => x.Id));
+        return string.Join(delimiter, identifiables.Select(x => x.Id));
     }
 
-    #endregion
+    /// <summary>
+    /// Retrieves a reference for the specified identifiable object.
+    /// </summary>
+    /// <param name="identifiable">The identifiable object.</param>
+    /// <returns>A reference for the identifiable object.</returns>
     public static IReference? GetReference(this IIdentifiable identifiable)
     {
         var key = new Key(ExtensionsUtil.GetKeyType(identifiable), identifiable.Id);
-        var outputReference = new Reference(ReferenceTypes.ModelReference, new List<IKey>() { key });
+        var outputReference = new Reference(ReferenceTypes.ModelReference, new List<IKey> {key});
 
         return outputReference;
     }
