@@ -29,7 +29,8 @@ public static class ExtendIReferable
     /// <param name="includeThis">Include this element as well. <c>parents</c> will then 
     /// include this element as well!</param>
     public static void RecurseOnReferable(this IReferable? referable,
-        object state, Func<object, List<IReferable>?, IReferable?, bool>? lambda,
+        object state,
+        Func<object, List<IReferable>?, IReferable?, bool>? lambda,
         bool includeThis = false)
     {
         switch (referable)
@@ -46,27 +47,31 @@ public static class ExtendIReferable
             default:
             {
                 if (includeThis)
-                    lambda(state, null, referable);
+                {
+                    lambda?.Invoke(state, null, referable);
+                }
+
                 break;
             }
         }
     }
+
 
     public static void Remove(this IReferable referable, ISubmodelElement submodelElement)
     {
         switch (referable)
         {
             case Submodel submodel:
-                ExtendSubmodel.Remove(submodel, submodelElement);
+                submodel.Remove(submodelElement);
                 break;
             case AnnotatedRelationshipElement annotatedRelationshipElement:
-                ExtendAnnotatedRelationshipElement.Remove(annotatedRelationshipElement, submodelElement);
+                annotatedRelationshipElement.Remove(submodelElement);
                 break;
             case SubmodelElementCollection submodelElementCollection:
-                ExtendSubmodelElementCollection.Remove(submodelElementCollection, submodelElement);
+                submodelElementCollection.Remove(submodelElement);
                 break;
             case SubmodelElementList submodelElementList:
-                ExtendSubmodelElementList.Remove(submodelElementList, submodelElement);
+                submodelElementList.Remove(submodelElement);
                 break;
             case Entity entity:
                 entity.Remove(submodelElement);
@@ -79,16 +84,16 @@ public static class ExtendIReferable
         switch (referable)
         {
             case Submodel submodel:
-                ExtendSubmodel.Add(submodel, submodelElement);
+                submodel.Add(submodelElement);
                 break;
             case AnnotatedRelationshipElement annotatedRelationshipElement:
-                ExtendAnnotatedRelationshipElement.Add(annotatedRelationshipElement, submodelElement);
+                annotatedRelationshipElement.Add(submodelElement);
                 break;
             case SubmodelElementCollection submodelElementCollection:
-                ExtendSubmodelElementCollection.Add(submodelElementCollection, submodelElement);
+                submodelElementCollection.Add(submodelElement);
                 break;
             case SubmodelElementList submodelElementList:
-                ExtendSubmodelElementList.Add(submodelElementList, submodelElement);
+                submodelElementList.Add(submodelElement);
                 break;
             case Entity entity:
                 entity.Add(submodelElement);
@@ -102,7 +107,7 @@ public static class ExtendIReferable
     {
         if (referable is Operation operation)
         {
-            return ExtendOperation.GetChildrenPlacement((IOperation) operation, submodelElement);
+            return operation.GetChildrenPlacement(submodelElement);
         }
 
         return null;
@@ -110,14 +115,17 @@ public static class ExtendIReferable
 
     #endregion
 
-    public static IIdentifiable FindParentFirstIdentifiable(this IReferable referable)
+    public static IIdentifiable? FindParentFirstIdentifiable(this IReferable referable)
     {
-        var curr = referable;
-        while (curr != null)
+        var current = referable;
+        while (current != null)
         {
-            if (curr is IIdentifiable current)
-                return current;
-            curr = curr.Parent as IReferable;
+            if (current is IIdentifiable identifiable)
+            {
+                return identifiable;
+            }
+
+            current = current.Parent as IReferable;
         }
 
         return null;
@@ -127,12 +135,12 @@ public static class ExtendIReferable
 
     #region ListOfReferables
 
-    public static Reference GetReference(this List<IReferable> referables)
+    public static Reference GetReference(this IEnumerable<IReferable> referables)
     {
         return new Reference(ReferenceTypes.ExternalReference, referables.ToKeyList());
     }
 
-    public static List<IKey> ToKeyList(this List<IReferable> referables)
+    public static List<IKey> ToKeyList(this IEnumerable<IReferable> referables)
     {
         return referables.Select(rf => new Key(rf.GetSelfDescription()?.KeyType ?? KeyTypes.GlobalReference, rf.IdShort ?? string.Empty)).Cast<IKey>().ToList();
     }
@@ -141,16 +149,16 @@ public static class ExtendIReferable
 
     public static string ToIdShortString(this IReferable rf)
     {
-        if (rf.IdShort == null || rf.IdShort.Trim().Length < 1)
-            return ("<no idShort!>");
-        return rf.IdShort.Trim();
+        var idShort = rf.IdShort?.Trim();
+        return !string.IsNullOrWhiteSpace(idShort) ? idShort : "<no idShort!>";
     }
+
 
     public static IReference? GetReference(this IReferable referable)
     {
         return referable switch
         {
-            IIdentifiable identifiable => ExtendIIdentifiable.GetReference(identifiable),
+            IIdentifiable identifiable => identifiable.GetReference(),
             ISubmodelElement submodelElement => submodelElement.GetModelReference(),
             _ => null
         };
@@ -159,35 +167,41 @@ public static class ExtendIReferable
     public static void Validate(this IReferable? referable, AasValidationRecordList? results)
     {
         referable.BaseValidation(results);
+
         switch (referable)
         {
             case Submodel submodel:
-                ExtendSubmodel.Validate(submodel, results);
+                submodel.Validate(results);
                 break;
-            case ISubmodelElement submodelElement:
-                // No further validation for SME
+            case ISubmodelElement:
+                // No further validation for Submodel Elements
                 break;
         }
     }
 
     public static void BaseValidation(this IReferable? referable, AasValidationRecordList? results)
     {
-        // access
+        // Check if results are provided
         if (results == null)
             return;
 
-        // check
-        if (string.IsNullOrEmpty(referable.IdShort))
+        // Validate idShort
+        if (string.IsNullOrWhiteSpace(referable?.IdShort))
+        {
             results.Add(new AasValidationRecord(
                 AasValidationSeverity.SpecViolation, referable,
-                "Referable: missing idShort",
-                () => { referable.IdShort = "TO_FIX"; }));
+                "Referable: missing or empty idShort",
+                () => { referable!.IdShort = "TO_FIX"; }));
+        }
 
-        if (referable.Description != null && (referable.Description.Count < 1))
+        // Validate description
+        if (referable?.Description?.Count < 1)
+        {
             results.Add(new AasValidationRecord(
                 AasValidationSeverity.SchemaViolation, referable,
                 "Referable: existing description with missing langString",
-                () => { referable.Description = null; }));
+                () => { referable!.Description = null; }));
+        }
     }
 
     /// <summary>
@@ -227,11 +241,11 @@ public static class ExtendIReferable
         };
     }
 
-    public static void CollectReferencesByParent(this IReferable referable, List<IKey> refs)
+    public static void CollectReferencesByParent(this IReferable? referable, List<IKey> refs)
     {
-        while (true)
+        while (referable != null)
         {
-            // check, if this is identifiable
+            // Check if this is identifiable
             if (referable is IIdentifiable)
             {
                 if (referable is not IIdentifiable idf)
@@ -239,14 +253,16 @@ public static class ExtendIReferable
                     return;
                 }
 
-                var key = new Key((KeyTypes) Stringification.KeyTypesFromString(idf.GetType().Name), idf.Id);
+                var keyType = (KeyTypes) Stringification.KeyTypesFromString(idf.GetType().Name);
+                var key = new Key(keyType, idf.Id);
                 refs.Insert(0, key);
             }
             else
             {
-                var key = new Key((KeyTypes) Stringification.KeyTypesFromString(referable.GetType().Name), referable.IdShort);
+                var keyType = (KeyTypes) Stringification.KeyTypesFromString(referable.GetType().Name);
+                var key = new Key(keyType, referable.IdShort);
                 refs.Insert(0, key);
-                // recurse upwards!
+                // Recurse upwards
                 if (referable.Parent is IReferable prf)
                 {
                     referable = prf;
@@ -316,7 +332,7 @@ public static class ExtendIReferable
         var head = string.Empty;
         if (referable is not IIdentifiable && referable.Parent is IReferable parentReferable)
             // can go up
-            head = parentReferable.CollectIdShortByParent() + "/";
+            head = $"{parentReferable.CollectIdShortByParent()}/";
         // add own
         var myid = "<no id-Short!>";
         if (!string.IsNullOrEmpty(referable.IdShort))
@@ -325,10 +341,10 @@ public static class ExtendIReferable
         return head + myid;
     }
 
-    public static void AddDescription(this IReferable referable, string language, string Text)
+    public static void AddDescription(this IReferable referable, string language, string text)
     {
         referable.Description ??= new List<ILangStringTextType>();
-        referable.Description.Add(new LangStringTextType(language, Text));
+        referable.Description.Add(new LangStringTextType(language, text));
     }
 
     public static List<IReferable> ListOfIReferableFrom(
@@ -343,14 +359,14 @@ public static class ExtendIReferable
         return res;
     }
 
-    public static Key? ToKey(this IReferable rf)
+    public static Key? ToKey(this IReferable referable)
     {
-        var sd = rf.GetSelfDescription();
+        var sd = referable.GetSelfDescription();
         if (sd is not {KeyType: not null})
             return null;
-        if (rf is IIdentifiable rfi)
-            return new Key(sd.KeyType.Value, rfi.Id);
-        return rf.IdShort != null ? new Key(sd.KeyType.Value, rf.IdShort) : null;
+        if (referable is IIdentifiable identifiableReferable)
+            return new Key(sd.KeyType.Value, identifiableReferable.Id);
+        return referable.IdShort != null ? new Key(sd.KeyType.Value, referable.IdShort) : null;
     }
 
     public static JsonNode ToJsonObject(List<IClass>? classes)
@@ -366,9 +382,9 @@ public static class ExtendIReferable
         return jar;
     }
 
-    public static IEnumerable<IQualifier> FindAllQualifierType(this IReferable rf, string? qualifierType)
+    public static IEnumerable<IQualifier> FindAllQualifierType(this IReferable referable, string? qualifierType)
     {
-        if (rf is not IQualifiable rfq || rfq.Qualifiers == null || qualifierType == null)
+        if (referable is not IQualifiable rfq || rfq.Qualifiers == null || qualifierType == null)
             yield break;
         foreach (var q in rfq.Qualifiers.Where(q => string.Equals(q.Type.Trim(), qualifierType.Trim(), StringComparison.CurrentCultureIgnoreCase)))
             yield return q;
