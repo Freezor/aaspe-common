@@ -112,6 +112,7 @@ public static class ExtendSubmodel
 
     #endregion
 
+    //TODO: TESTED UNTIL HERE
     public static void Validate(this Submodel? submodel, AasValidationRecordList? results)
     {
         // access
@@ -347,14 +348,12 @@ public static class ExtendSubmodel
         return submodel.SubmodelElements ?? (submodel.SubmodelElements = new List<ISubmodelElement>());
     }
 
-    public static void RecurseOnSubmodelElements(this ISubmodel? submodel, object? state, Func<object, List<IReferable>, ISubmodelElement?, bool> lambda)
+    public static void RecurseOnSubmodelElements(this ISubmodel submodel,
+        object? state, Func<object?, List<IReferable>?, IReferable?, bool>? lambda)
     {
-        submodel?.SubmodelElements?.RecurseOnReferables(state, null, (o, par, rf) =>
-        {
-            if (rf is ISubmodelElement sme)
-                return lambda(o, par, sme);
-            return true;
-        });
+        var parents = new List<IReferable>();
+        submodel.SubmodelElements ??= new List<ISubmodelElement>(); // Initialize with an empty list if null
+        submodel.SubmodelElements.RecurseOnReferables(state, parents, lambda);
     }
 
     public static ISubmodelElement? FindSubmodelElementByIdShort(this ISubmodel submodel, string smeIdShort)

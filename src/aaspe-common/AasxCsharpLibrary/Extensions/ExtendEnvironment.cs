@@ -128,7 +128,7 @@ public static class ExtendEnvironment
                 var allsme = new List<ISubmodelElement?>();
                 sm.RecurseOnSubmodelElements(null, (_, _, sme) =>
                 {
-                    allsme.Add(sme);
+                    allsme.Add((ISubmodelElement?) sme);
                     return true;
                 });
                 foreach (var sme in allsme)
