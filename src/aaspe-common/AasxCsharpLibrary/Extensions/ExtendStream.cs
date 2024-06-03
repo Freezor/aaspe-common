@@ -11,13 +11,15 @@ namespace aaspe_common.AasxCsharpLibrary.Extensions;
 
 public static class ExtendStream
 {
-    public static byte[] ToByteArray(this Stream stream)
+    public static IEnumerable<byte> ToByteArray(this Stream stream)
     {
-        using (stream)
+        if (stream == null)
         {
-            using MemoryStream memStream = new();
-            stream.CopyTo(memStream);
-            return memStream.ToArray();
+            throw new ArgumentNullException(nameof(stream));
         }
+
+        using MemoryStream memStream = new();
+        stream.CopyTo(memStream);
+        return memStream.ToArray();
     }
 }
