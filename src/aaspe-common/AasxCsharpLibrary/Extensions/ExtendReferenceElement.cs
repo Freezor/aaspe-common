@@ -13,20 +13,18 @@ namespace aaspe_common.AasxCsharpLibrary.Extensions;
 
 public static class ExtendReferenceElement
 {
-    public static AAS.ReferenceElement Set(this AAS.ReferenceElement elem,
-        Reference rf)
+    public static ReferenceElement Set(this ReferenceElement elem, Reference rf)
     {
         elem.Value = rf;
         return elem;
     }
 
-    public static AAS.ReferenceElement UpdateFrom(
-        this AAS.ReferenceElement elem, ISubmodelElement? source)
+    public static ReferenceElement UpdateFrom(this ReferenceElement elem, ISubmodelElement? source)
     {
         if (source == null)
             return elem;
 
-        ((ISubmodelElement)elem).UpdateFrom(source);
+        ((ISubmodelElement) elem).UpdateFrom(source);
 
         switch (source)
         {
