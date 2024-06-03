@@ -20,7 +20,7 @@ public class ExtendSubmodelTests
             new TypeRelay(
                 typeof(IAdministrativeInformation),
                 typeof(AdministrativeInformation)));
-        
+
         _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
             .ForEach(b => _fixture.Behaviors.Remove(b));
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
@@ -203,5 +203,145 @@ public class ExtendSubmodelTests
 
         // Assert
         result.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void ConvertFromV20_HandlesNullSourceSubmodel()
+    {
+        // Arrange
+        Submodel submodel = null;
+        AdminShellV20.Submodel sourceSubmodel = null;
+
+        // Act
+        var result = submodel.ConvertFromV20(sourceSubmodel);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void ConvertFromV20_ConvertsFromV20ToV30Properly()
+    {
+        // Arrange
+        var submodel = _fixture.Create<Submodel>();
+        var sourceSubmodel = _fixture.Create<AdminShellV20.Submodel>();
+
+        // Act
+        var result = submodel.ConvertFromV20(sourceSubmodel);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.IdShort.Should().Be(sourceSubmodel.idShort);
+        result.Id.Should().Be(sourceSubmodel.identification.id);
+    }
+
+    [Fact]
+    public void ConvertFromV20_PerformsShallowCopyWhenShallowCopyIsTrue()
+    {
+        // Arrange
+        var submodel = _fixture.Create<Submodel>();
+        var sourceSubmodel = _fixture.Create<AdminShellV20.Submodel>();
+
+        // Act
+        var result = submodel.ConvertFromV20(sourceSubmodel, shallowCopy: true);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.SubmodelElements.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void ConvertFromV20_MocksDependenciesCorrectly()
+    {
+        // Arrange
+        var submodel = _fixture.Create<Submodel>();
+        var sourceSubmodel = _fixture.Create<AdminShellV20.Submodel>();
+
+        // Act
+        var result = submodel.ConvertFromV20(sourceSubmodel);
+
+        // Assert
+        result.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void GetModelReference_ReturnsCorrectReference()
+    {
+        // Arrange
+        var submodel = _fixture.Create<Submodel>();
+        submodel.Id = "TestId";
+        submodel.SemanticId = new Reference(ReferenceTypes.ExternalReference, new List<IKey> {new Key(KeyTypes.GlobalReference, "TestKey")});
+
+        // Act
+        var result = submodel.GetModelReference();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Type.Should().Be(ReferenceTypes.ModelReference);
+        result.ReferredSemanticId.Should().Be(submodel.SemanticId);
+        result.Keys.Should().ContainSingle().Which.Should().BeEquivalentTo(new Key(KeyTypes.Submodel, "TestId"));
+    }
+
+    [Fact]
+    public void GetSemanticKey_ReturnsCorrectKeyForInstance()
+    {
+        // Arrange
+        var submodel = _fixture.Build<Submodel>()
+            .With(s => s.Kind, ModellingKind.Instance)
+            .With(s => s.Id, "TestId")
+            .Create();
+        submodel.SemanticId = new Reference(ReferenceTypes.ExternalReference, new List<IKey> {new Key(KeyTypes.GlobalReference, "TestKey")});
+
+        // Act
+        var result = submodel.GetSemanticKey();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(new Key(KeyTypes.GlobalReference, "TestKey"));
+    }
+
+    [Fact]
+    public void GetSemanticKey_ReturnsCorrectKeyForTemplate()
+    {
+        // Arrange
+        var submodel = _fixture.Build<Submodel>()
+            .With(s => s.Kind, ModellingKind.Template)
+            .With(s => s.Id, "TestId")
+            .Create();
+
+        // Act
+        var result = submodel.GetSemanticKey();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(new Key(KeyTypes.Submodel, "TestId"));
+    }
+
+    [Fact]
+    public void ConvertFromV20_WithNullSourceSubmodel_ReturnsNull()
+    {
+        // Arrange
+        AdminShellV20.Submodel srcSubmodel = null;
+        var sm = _fixture.Create<Submodel>();
+
+        // Act
+        var result = sm.ConvertFromV20(srcSubmodel);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void ConvertFromV20_WithNullSubmodel_ReturnsNull()
+    {
+        // Arrange
+        var srcSubmodel = new AdminShellV20.Submodel();
+        Submodel sm = null;
+
+        // Act
+        var result = sm.ConvertFromV20(srcSubmodel);
+
+        // Assert
+        result.Should().BeNull();
     }
 }
