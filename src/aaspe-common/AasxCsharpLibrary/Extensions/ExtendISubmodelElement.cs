@@ -36,9 +36,9 @@ public static class ExtendISubmodelElement
         return submodelElement switch
         {
             AnnotatedRelationshipElement annotatedRelationshipElement => annotatedRelationshipElement.AddChild(childSubmodelElement),
-            SubmodelElementCollection submodelElementCollection => ExtendSubmodelElementCollection.AddChild(submodelElementCollection, childSubmodelElement),
-            SubmodelElementList submodelElementList => ExtendSubmodelElementList.AddChild(submodelElementList, childSubmodelElement, placement),
-            Operation operation => ExtendOperation.AddChild(operation, childSubmodelElement, placement),
+            SubmodelElementCollection submodelElementCollection => submodelElementCollection.AddChild(childSubmodelElement),
+            SubmodelElementList submodelElementList => submodelElementList.AddChild(childSubmodelElement, placement),
+            Operation operation => operation.AddChild(childSubmodelElement, placement),
             Entity entity => entity.AddChild(childSubmodelElement, placement),
             _ => childSubmodelElement
         };
@@ -65,12 +65,12 @@ public static class ExtendISubmodelElement
         {
             case Property property:
             {
-                ExtendProperty.ValueFromText(property, text);
+                property.ValueFromText(text);
                 break;
             }
             case MultiLanguageProperty multiLanguageProperty:
             {
-                ExtendMultiLanguageProperty.ValueFromText(multiLanguageProperty, text, defaultLang);
+                multiLanguageProperty.ValueFromText(text, defaultLang);
                 break;
             }
             default:
@@ -127,9 +127,9 @@ public static class ExtendISubmodelElement
     {
         return submodelElement switch
         {
-            Property property => ExtendProperty.ValueAsText(property),
-            MultiLanguageProperty multiLanguageProperty => ExtendMultiLanguageProperty.ValueAsText(multiLanguageProperty, defaultLang),
-            AasCore.Aas3_0.Range range => ExtendRange.ValueAsText(range),
+            Property property => property.ValueAsText(),
+            MultiLanguageProperty multiLanguageProperty => multiLanguageProperty.ValueAsText(defaultLang),
+            AasCore.Aas3_0.Range range => range.ValueAsText(),
             File file => file.ValueAsText(),
             _ => string.Empty
         };
@@ -150,8 +150,11 @@ public static class ExtendISubmodelElement
         // this will be the tail of our chain
         var keyList = new List<IKey>();
         var keyType = ExtensionsUtil.GetKeyType(sme);
-        var key = new Key(keyType, sme.IdShort);
-        keyList.Add(key);
+        if (sme.IdShort != null)
+        {
+            var key = new Key(keyType, sme.IdShort);
+            keyList.Add(key);
+        }
 
         // keys for Parents will be INSERTED in front, iteratively
         var currentParent = sme.Parent;
@@ -283,7 +286,7 @@ public static class ExtendISubmodelElement
         return outputSubmodelElement;
     }
 
-    private static void BasicConversionFromV10(this ISubmodelElement? submodelElement, AdminShellV10.SubmodelElement? sourceSubmodelElement)
+    private static void BasicConversionFromV10(this ISubmodelElement submodelElement, AdminShellV10.SubmodelElement? sourceSubmodelElement)
     {
         if (!string.IsNullOrEmpty(sourceSubmodelElement?.idShort))
         {
@@ -435,13 +438,13 @@ public static class ExtendISubmodelElement
                 if (!sourceOperation.inputVariable.IsNullOrEmpty())
                 {
                     newInputVariables.AddRange(sourceOperation.inputVariable.Select(inputVariable => ConvertFromV20(inputVariable.value.submodelElement))
-                        .Select(newSubmodelElement => new OperationVariable(newSubmodelElement)).Cast<IOperationVariable>());
+                        .Select(newSubmodelElement => new OperationVariable(newSubmodelElement)));
                 }
 
                 if (!sourceOperation.outputVariable.IsNullOrEmpty())
                 {
                     newOutputVariables.AddRange(sourceOperation.outputVariable.Select(outputVariable => ConvertFromV20(outputVariable.value.submodelElement))
-                        .Select(newSubmodelElement => new OperationVariable(newSubmodelElement)).Cast<IOperationVariable>());
+                        .Select(newSubmodelElement => new OperationVariable(newSubmodelElement)));
                 }
 
                 if (!sourceOperation.inoutputVariable.IsNullOrEmpty())
@@ -450,7 +453,7 @@ public static class ExtendISubmodelElement
                         let newSubmodelElement = (ISubmodelElement?) null
                         select ConvertFromV20(inOutVariable.value.submodelElement)
                         into newSubmodelElement
-                        select new OperationVariable(newSubmodelElement)).Cast<IOperationVariable>());
+                        select new OperationVariable(newSubmodelElement)));
                 }
 
                 outputSubmodelElement = new Operation(inputVariables: newInputVariables, outputVariables: newOutputVariables, inoutputVariables: newInOutVariables);
@@ -591,6 +594,7 @@ public static class ExtendISubmodelElement
                 }
             }
         }
+
         return null;
     }
 
@@ -742,10 +746,11 @@ public static class ExtendISubmodelElement
         ConceptDescription? createDefault = null,
         string idShort = null, bool addSme = false) where T : ISubmodelElement
     {
+        T? res;
         if (typeof(T) == typeof(MultiLanguageProperty)
             && anySrc is Property srcProp)
         {
-            var res = submodelElements.CreateSMEForCD<T>(createDefault, idShort: idShort, addSme: addSme);
+            res = submodelElements.CreateSMEForCD<T>(createDefault, idShort: idShort, addSme: addSme);
             if (res is MultiLanguageProperty mlp)
             {
                 mlp.Value = new List<ILangStringTextType>()
@@ -758,19 +763,20 @@ public static class ExtendISubmodelElement
         }
 
         if (typeof(T) != typeof(Property)
-            || anySrc is not MultiLanguageProperty srcMlp) return default(T);
+            || anySrc is not MultiLanguageProperty srcMlp)
         {
-            var res = submodelElements.CreateSMEForCD<T>(createDefault, idShort: idShort, addSme: addSme);
-            if (res is not Property prp)
-            {
-                return default(T);
-            }
-
-            prp.Value = "" + srcMlp.Value?.GetDefaultString();
-            prp.ValueId = srcMlp.ValueId;
-            return res;
+            return default(T);
         }
 
+        res = submodelElements.CreateSMEForCD<T>(createDefault, idShort: idShort, addSme: addSme);
+        if (res is not Property prp)
+        {
+            return default(T);
+        }
+
+        prp.Value = srcMlp.Value?.GetDefaultString();
+        prp.ValueId = srcMlp.ValueId;
+        return res;
     }
 
     public static IEnumerable<ISubmodelElement> FindAllIdShort(this List<ISubmodelElement> submodelElements,
@@ -797,11 +803,10 @@ public static class ExtendISubmodelElement
         return submodelElements.FindAllIdShortAs<T>(idShort)?.FirstOrDefault<T>();
     }
 
-
     public static ISubmodelElement? FindFirstAnySemanticId(this List<ISubmodelElement> submodelElements,
-        Key?[]? semId, Type[]? allowedTypes = null, MatchMode matchMode = MatchMode.Strict)
+        IEnumerable<Key?>? semId, Type[]? allowedTypes = null, MatchMode matchMode = MatchMode.Strict)
     {
-        return semId?.Select(si => submodelElements.FindAllSemanticId(si, allowedTypes, matchMode)?.FirstOrDefault<ISubmodelElement>()).OfType<ISubmodelElement>().FirstOrDefault();
+        return semId?.Select(si => submodelElements.FindAllSemanticId(si, allowedTypes, matchMode)?.FirstOrDefault()).OfType<ISubmodelElement>().FirstOrDefault();
     }
 
     public static T? FindFirstAnySemanticIdAs<T>(
@@ -1025,7 +1030,7 @@ public static class ExtendISubmodelElement
     }
 
     public static void RecurseOnSubmodelElements(
-        this List<ISubmodelElement> submodelElements, object state,
+        this IEnumerable<ISubmodelElement> submodelElements, object state,
         List<ISubmodelElement>? parents, Action<object, List<ISubmodelElement>, ISubmodelElement>? lambda)
     {
         // trivial

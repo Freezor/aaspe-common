@@ -85,7 +85,7 @@ public static class ExtendKeyList
         return true;
     }
 
-    public static string ToStringExtended(this List<IKey> keys, int format = 1, string delimiter = ",")
+    public static string ToStringExtended(this IEnumerable<IKey> keys, int format = 1, string delimiter = ",")
     {
         return string.Join(delimiter, keys.Select((k) => k.ToStringExtended(format)));
     }
