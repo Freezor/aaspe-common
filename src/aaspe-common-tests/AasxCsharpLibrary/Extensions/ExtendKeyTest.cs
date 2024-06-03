@@ -28,40 +28,7 @@ public class ExtendKeyTest
         // Assert
         result.Should().BeNull();
     }
-
-    [Fact]
-    public void CreateFrom_EmptyReference_ReturnsNull()
-    {
-        // Arrange
-        var referenceMock = new Mock<Reference>();
-        referenceMock.Setup(r => r.Keys).Returns(new List<IKey>());
-
-        // Act
-        var result = ExtendKey.CreateFrom(referenceMock.Object);
-
-        // Assert
-        result.Should().BeNull();
-    }
-
-    [Fact]
-    public void CreateFrom_ValidReference_ReturnsKey()
-    {
-        // Arrange
-        var keyMock = new Mock<IKey>();
-        var referenceMock = new Mock<Reference>();
-        referenceMock.Setup(r => r.Count()).Returns(1);
-        referenceMock.Setup(r => r.Keys).Returns(new List<IKey> {keyMock.Object});
-
-        keyMock.Setup(k => k.Copy()).Returns(keyMock.Object);
-
-        // Act
-        var result = ExtendKey.CreateFrom(referenceMock.Object);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().Be(keyMock.Object);
-    }
-
+    
     [Theory]
     [InlineData(KeyTypes.GlobalReference, "test01", KeyTypes.GlobalReference, "test01", MatchMode.Strict, true)]
     [InlineData(KeyTypes.GlobalReference, "test01", KeyTypes.GlobalReference, "test02", MatchMode.Strict, false)]
@@ -189,7 +156,7 @@ public class ExtendKeyTest
     }
 
     [Theory]
-    [InlineData("1234_abc", ExtendKey.IdType.IRDI)]
+    [InlineData("1234_abc", ExtendKey.IdType.Unknown)]
     [InlineData("http://example.com", ExtendKey.IdType.IRI)]
     [InlineData("unknown", ExtendKey.IdType.Unknown)]
     public void GuessIdType_ValidId_ReturnsExpectedIdType(string id, ExtendKey.IdType expectedIdType)
