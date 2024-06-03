@@ -13,25 +13,25 @@ public static class ExtendSpecificAssetId
 {
     public static bool Matches(this ISpecificAssetId? specificAssetId, ISpecificAssetId? other)
     {
-        if (specificAssetId == null) return false;
-        if (other == null) return false;
+        if (specificAssetId == null || other == null)
+        {
+            return false;
+        }
 
-        //check mandatory parameters first
-        if (specificAssetId.Name != other.Name) return false;
-        if (specificAssetId.Value != other.Value) return false;
-        return specificAssetId.ExternalSubjectId == null || specificAssetId.ExternalSubjectId.Matches(other.ExternalSubjectId);
+        // Check mandatory parameters first
+        if (specificAssetId.Name != other.Name || specificAssetId.Value != other.Value)
+            return false;
+
+        return specificAssetId.ExternalSubjectId?.Matches(other.ExternalSubjectId) ?? true;
     }
-
-    #region ListOfSpecificAssetIds
 
     public static bool ContainsSpecificAssetId(this List<ISpecificAssetId>? specificAssetIds, ISpecificAssetId? other)
     {
-        if (specificAssetIds == null) return false;
-        if (other == null) return false;
+        if (specificAssetIds == null || other == null)
+        {
+            return false;
+        }
 
-        var foundIds = specificAssetIds.Where(assetId => assetId.Matches(other));
-        return foundIds.Any();
+        return specificAssetIds.Exists(assetId => assetId.Matches(other));
     }
-
-    #endregion
 }
