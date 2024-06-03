@@ -24,7 +24,7 @@ public static class ExtendSubmodelElementCollection
     /// <param name="includeThis">Include this element as well. <c>parents</c> will then 
     /// include this element as well!</param>
     public static void RecurseOnReferables(this SubmodelElementCollection submodelElementCollection,
-        object state, Func<object, List<IReferable>?, IReferable?, bool>? lambda,
+        object? state, Func<object?, List<IReferable>?, IReferable?, bool>? lambda,
         bool includeThis = false)
     {
         var parents = new List<IReferable>();

@@ -29,8 +29,8 @@ public static class ExtendIReferable
     /// <param name="includeThis">Include this element as well. <c>parents</c> will then 
     /// include this element as well!</param>
     public static void RecurseOnReferable(this IReferable? referable,
-        object state,
-        Func<object, List<IReferable>?, IReferable?, bool>? lambda,
+        object? state,
+        Func<object?, List<IReferable>?, IReferable?, bool>? lambda,
         bool includeThis = false)
     {
         switch (referable)

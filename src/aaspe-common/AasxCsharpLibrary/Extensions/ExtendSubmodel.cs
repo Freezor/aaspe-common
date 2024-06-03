@@ -21,13 +21,14 @@ public static class ExtendSubmodel
     /// The <c>state</c> object will be passed to the lambda function in order to provide
     /// stateful approaches. Include this element, as well. 
     /// </summary>
+    /// <param name="submodel"></param>
     /// <param name="state">State object to be provided to lambda. Could be <c>null.</c></param>
     /// <param name="lambda">The lambda function as <c>(state, parents, SME)</c>
     /// The lambda shall return <c>TRUE</c> in order to deep into recursion.</param>
     /// <param name="includeThis">Include this element as well. <c>parents</c> will then 
     /// include this element as well!</param>
     public static void RecurseOnReferable(this Submodel submodel,
-        object state, Func<object, List<IReferable>?, IReferable?, bool>? lambda,
+        object? state, Func<object?, List<IReferable>?, IReferable?, bool>? lambda,
         bool includeThis = false)
     {
         var parents = new List<IReferable>();
@@ -36,6 +37,7 @@ public static class ExtendSubmodel
             lambda?.Invoke(state, null, submodel);
             parents.Add(submodel);
         }
+
         submodel.SubmodelElements?.RecurseOnReferables(state, parents, lambda);
     }
 
@@ -44,9 +46,17 @@ public static class ExtendSubmodel
         submodel?.SubmodelElements?.Remove(submodelElement);
     }
 
+    [Obsolete("Parameter placement is not used. Please use the extension without this parameter.")]
     public static object? AddChild(
         this ISubmodel submodel, ISubmodelElement? childSubmodelElement,
-        EnumerationPlacmentBase? placement = null)
+        EnumerationPlacmentBase? _ = null)
+    {
+        return submodel.AddChild(childSubmodelElement);
+    }
+
+
+    public static object? AddChild(
+        this ISubmodel submodel, ISubmodelElement? childSubmodelElement)
     {
         if (childSubmodelElement == null)
             return null;
@@ -60,9 +70,8 @@ public static class ExtendSubmodel
     {
         var caption = AdminShellUtil.EvalToNonNullString("\"{0}\" ", submodel.IdShort, "<no idShort!>");
         if (submodel.Administration != null)
-            caption += "V" + submodel.Administration.Version + "." + submodel.Administration.Revision;
-        var info = string.Empty;
-        info = $"[{submodel.Id}]";
+            caption += $"V{submodel.Administration.Version}.{submodel.Administration.Revision}";
+        var info = $"[{submodel.Id}]";
         return Tuple.Create(caption, info);
     }
 
@@ -72,7 +81,7 @@ public static class ExtendSubmodel
         var temp = new List<IReference>();
 
         // recurse
-        submodel.RecurseOnSubmodelElements(null, (state, parents, sme) =>
+        submodel.RecurseOnSubmodelElements(null, (_, _, sme) =>
         {
             switch (sme)
             {
@@ -102,6 +111,7 @@ public static class ExtendSubmodel
     }
 
     #endregion
+
     public static void Validate(this Submodel? submodel, AasValidationRecordList? results)
     {
         // access
@@ -157,14 +167,7 @@ public static class ExtendSubmodel
             submodel.SemanticId = new Reference(ReferenceTypes.ExternalReference, keyList);
         }
 
-        if (sourceSubmodel.kind.IsInstance)
-        {
-            submodel.Kind = ModellingKind.Instance;
-        }
-        else
-        {
-            submodel.Kind = ModellingKind.Template;
-        }
+        submodel.Kind = sourceSubmodel.kind.IsInstance ? ModellingKind.Instance : ModellingKind.Template;
 
         if (!sourceSubmodel.qualifiers.IsNullOrEmpty())
         {
@@ -173,7 +176,9 @@ public static class ExtendSubmodel
                 submodel.Qualifiers = new List<IQualifier>();
             }
 
-            foreach (var newQualifier in from sourceQualifier in sourceSubmodel.qualifiers let newQualifier = new Qualifier("", DataTypeDefXsd.String) select newQualifier.ConvertFromV10(sourceQualifier))
+            foreach (var newQualifier in from sourceQualifier in sourceSubmodel.qualifiers
+                     let newQualifier = new Qualifier("", DataTypeDefXsd.String)
+                     select newQualifier.ConvertFromV10(sourceQualifier))
             {
                 submodel.Qualifiers.Add(newQualifier);
             }
@@ -186,7 +191,12 @@ public static class ExtendSubmodel
 
         submodel.SubmodelElements ??= new List<ISubmodelElement>();
 
-        foreach (var outputSubmodelElement in (from submodelElementWrapper in sourceSubmodel.submodelElements select submodelElementWrapper.submodelElement into sourceSubmodelELement let outputSubmodelElement = (ISubmodelElement?) null select sourceSubmodelELement).OfType<AdminShellV10.SubmodelElement>().Select(sourceSubmodelELement => ExtendISubmodelElement.ConvertFromV10(sourceSubmodelELement, shallowCopy)))
+        foreach (var outputSubmodelElement in (from submodelElementWrapper in sourceSubmodel.submodelElements
+                     select submodelElementWrapper.submodelElement
+                     into sourceSubmodelElement
+                     let outputSubmodelElement = (ISubmodelElement?) null
+                     select sourceSubmodelElement).OfType<AdminShellV10.SubmodelElement>()
+                 .Select(sourceSubmodelELement => ExtendISubmodelElement.ConvertFromV10(sourceSubmodelELement, shallowCopy)))
         {
             submodel.SubmodelElements.Add(outputSubmodelElement);
         }
@@ -194,78 +204,90 @@ public static class ExtendSubmodel
         return submodel;
     }
 
-    public static Submodel? ConvertFromV20(this Submodel? sm, AdminShellV20.Submodel? srcSM, bool shallowCopy = false)
+    public static Submodel? ConvertFromV20(this Submodel? sm, AdminShellV20.Submodel? srcSubmodel, bool shallowCopy = false)
     {
-        if (srcSM == null)
+        if (srcSubmodel == null)
             return null;
 
-        sm.IdShort = string.IsNullOrEmpty(srcSM.idShort) ? string.Empty : srcSM.idShort;
-
-        if (srcSM.identification?.id != null)
-            sm.Id = srcSM.identification.id;
-
-        if (srcSM.description != null)
-            sm.Description = ExtensionsUtil.ConvertDescriptionFromV20(srcSM.description);
-
-        if (srcSM.administration != null)
-            sm.Administration = new AdministrativeInformation(
-                version: srcSM.administration.version, revision: srcSM.administration.revision);
-
-        if (srcSM.semanticId != null && !srcSM.semanticId.IsEmpty)
+        if (sm != null)
         {
-            var keyList = new List<IKey>();
-            foreach (var refKey in srcSM.semanticId.Keys)
+            sm.IdShort = string.IsNullOrEmpty(srcSubmodel.idShort) ? string.Empty : srcSubmodel.idShort;
+
+            sm.Id = srcSubmodel.identification.id;
+
+            if (srcSubmodel.description != null)
+                sm.Description = ExtensionsUtil.ConvertDescriptionFromV20(srcSubmodel.description);
+
+            if (srcSubmodel.administration != null)
+                sm.Administration = new AdministrativeInformation(
+                    version: srcSubmodel.administration.version, revision: srcSubmodel.administration.revision);
+
+            if (srcSubmodel.semanticId != null && !srcSubmodel.semanticId.IsEmpty)
             {
-                var keyType = Stringification.KeyTypesFromString(refKey.type);
-                if (keyType != null)
+                var keyList = new List<IKey>();
+                foreach (var refKey in srcSubmodel.semanticId.Keys)
                 {
-                    keyList.Add(new Key((KeyTypes)keyType, refKey.value));
+                    var keyType = Stringification.KeyTypesFromString(refKey.type);
+                    if (keyType != null)
+                    {
+                        keyList.Add(new Key((KeyTypes) keyType, refKey.value));
+                    }
+                    else
+                    {
+                        Console.WriteLine($"KeyType value {refKey.type} not found.");
+                    }
                 }
-                else
+
+                sm.SemanticId = new Reference(ReferenceTypes.ExternalReference, keyList);
+            }
+
+            if (srcSubmodel.kind != null)
+            {
+                sm.Kind = srcSubmodel.kind.IsInstance ? ModellingKind.Instance : ModellingKind.Template;
+            }
+
+            if (!srcSubmodel.qualifiers.IsNullOrEmpty())
+            {
+                sm.Qualifiers ??= new List<IQualifier>();
+
+                foreach (var newQualifier in from sourceQualifier in srcSubmodel.qualifiers
+                         let newQualifier = new Qualifier("", DataTypeDefXsd.String)
+                         select newQualifier.ConvertFromV20(sourceQualifier))
                 {
-                    Console.WriteLine($"KeyType value {refKey.type} not found.");
+                    sm.Qualifiers.Add(newQualifier);
                 }
             }
-            sm.SemanticId = new Reference(ReferenceTypes.ExternalReference, keyList);
-        }
 
-        if (srcSM.kind != null)
-        {
-            sm.Kind = srcSM.kind.IsInstance ? ModellingKind.Instance : ModellingKind.Template;
-        }
-
-        if (!srcSM.qualifiers.IsNullOrEmpty())
-        {
-            sm.Qualifiers ??= new List<IQualifier>();
-
-            foreach (var newQualifier in from sourceQualifier in srcSM.qualifiers let newQualifier = new Qualifier("", DataTypeDefXsd.String) select newQualifier.ConvertFromV20(sourceQualifier))
+            if (!shallowCopy && !srcSubmodel.submodelElements.IsNullOrEmpty())
             {
-                sm.Qualifiers.Add(newQualifier);
+                sm.SubmodelElements ??= new List<ISubmodelElement>();
+
+                foreach (var outputSubmodelElement in (from submodelElementWrapper in srcSubmodel.submodelElements
+                             select submodelElementWrapper.submodelElement
+                             into sourceSubmodelElement
+                             let outputSubmodelElement = (ISubmodelElement?) null
+                             select sourceSubmodelElement).OfType<AdminShellV20.SubmodelElement>()
+                         .Select(sourceSubmodelELement => ExtendISubmodelElement.ConvertFromV20(sourceSubmodelELement, shallowCopy)))
+                {
+                    sm.SubmodelElements.Add(outputSubmodelElement);
+                }
             }
+
+            // move Qualifiers to Extensions
+            sm.MigrateV20QualifiersToExtensions();
+
+            return sm;
         }
 
-        if (!shallowCopy && !srcSM.submodelElements.IsNullOrEmpty())
-        {
-            sm.SubmodelElements ??= new List<ISubmodelElement>();
-
-            foreach (var outputSubmodelElement in (from submodelElementWrapper in srcSM.submodelElements select submodelElementWrapper.submodelElement into sourceSubmodelELement let outputSubmodelElement = (ISubmodelElement?) null select sourceSubmodelELement).OfType<AdminShellV20.SubmodelElement>().Select(sourceSubmodelELement => ExtendISubmodelElement.ConvertFromV20(sourceSubmodelELement, shallowCopy)))
-            {
-                sm.SubmodelElements.Add(outputSubmodelElement);
-            }
-        }
-
-        // move Qualifiers to Extensions
-        sm.MigrateV20QualifiersToExtensions();
-
-        return sm;
+        return null;
     }
 
     public static T FindFirstIdShortAs<T>(this ISubmodel submodel, string idShort) where T : ISubmodelElement
     {
+        var submodelElement = submodel.SubmodelElements
+            .FirstOrDefault(sme => (sme != null) && (sme is T) && sme.IdShort.Equals(idShort, StringComparison.OrdinalIgnoreCase));
 
-        var submodelElement = submodel.SubmodelElements.Where(sme => (sme != null) && (sme is T) && sme.IdShort.Equals(idShort, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-
-        return (T)submodelElement;
+        return (T) submodelElement;
     }
 
     public static IEnumerable<T> FindDeep<T>(this ISubmodel submodel)
@@ -284,7 +306,7 @@ public static class ExtendSubmodel
     public static Reference GetModelReference(this ISubmodel submodel)
     {
         var key = new Key(KeyTypes.Submodel, submodel.Id);
-        var outputReference = new Reference(ReferenceTypes.ModelReference, new List<IKey>() { key })
+        var outputReference = new Reference(ReferenceTypes.ModelReference, new List<IKey>() {key})
         {
             ReferredSemanticId = submodel.SemanticId
         };
@@ -325,7 +347,7 @@ public static class ExtendSubmodel
         return submodel.SubmodelElements ?? (submodel.SubmodelElements = new List<ISubmodelElement>());
     }
 
-    public static void RecurseOnSubmodelElements(this ISubmodel? submodel, object state, Func<object, List<IReferable>, ISubmodelElement?, bool> lambda)
+    public static void RecurseOnSubmodelElements(this ISubmodel? submodel, object? state, Func<object, List<IReferable>, ISubmodelElement?, bool> lambda)
     {
         submodel?.SubmodelElements?.RecurseOnReferables(state, null, (o, par, rf) =>
         {
@@ -342,7 +364,8 @@ public static class ExtendSubmodel
             return null;
         }
 
-        IEnumerable<ISubmodelElement?> submodelElements = submodel.SubmodelElements.Where(sme => (sme != null) && sme.IdShort.Equals(smeIdShort, StringComparison.OrdinalIgnoreCase));
+        IEnumerable<ISubmodelElement?> submodelElements =
+            submodel.SubmodelElements.Where(sme => (sme != null) && sme.IdShort.Equals(smeIdShort, StringComparison.OrdinalIgnoreCase));
         return submodelElements.Any() ? submodelElements.First() : null;
     }
 
@@ -418,5 +441,4 @@ public static class ExtendSubmodel
         return sm.SubmodelElements.CreateSMEForCD<T>(
             conceptDescription, category, idShort, idxTemplate, maxNum, addSme);
     }
-
 }

@@ -966,8 +966,8 @@ public static class ExtendISubmodelElement
     }
 
     public static void RecurseOnReferables(
-        this IEnumerable<ISubmodelElement> submodelElements, object state, List<IReferable> parents,
-        Func<object, List<IReferable>?, IReferable?, bool>? lambda)
+        this IEnumerable<ISubmodelElement> submodelElements, object? state, List<IReferable> parents,
+        Func<object?, List<IReferable>?, IReferable?, bool>? lambda)
     {
         if (lambda == null)
             return;

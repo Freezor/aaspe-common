@@ -21,7 +21,7 @@ public static class ExtendEnvironment
     #region AasxPackageExplorer
 
     public static void RecurseOnReferable(this AasCore.Aas3_0.Environment environment,
-        object state, Func<object, List<IReferable>?, IReferable?, bool>? lambda, bool includeThis = false)
+        object? state, Func<object?, List<IReferable>?, IReferable?, bool>? lambda, bool includeThis = false)
     {
         // includeThis does not make sense, as no Referable
         // just use the others
