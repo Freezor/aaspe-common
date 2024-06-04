@@ -344,4 +344,146 @@ public class ExtendSubmodelTests
         // Assert
         result.Should().BeNull();
     }
+    
+    [Fact]
+    public void GetSemanticRef_InstanceSubmodel_ReturnsSemanticId()
+    {
+        // Arrange
+        var semanticId = _fixture.Create<IReference>();
+        var submodel = _fixture.Build<Submodel>()
+            .With(s => s.Kind, ModellingKind.Instance)
+            .With(s => s.SemanticId, semanticId)
+            .Create();
+
+        // Act
+        var result = submodel.GetSemanticRef();
+
+        // Assert
+        result.Should().Be(semanticId);
+    }
+
+    [Fact]
+    public void GetSemanticRef_TemplateSubmodel_ReturnsNewReferenceWithSubmodelId()
+    {
+        // Arrange
+        var submodel = _fixture.Build<Submodel>()
+            .With(s => s.Kind, ModellingKind.Template)
+            .With(s => s.Id, "TestId")
+            .Create();
+
+        // Act
+        var result = submodel.GetSemanticRef();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Type.Should().Be(ReferenceTypes.ModelReference);
+        result.Keys.Should().ContainSingle().Which.Type.Should().Be(KeyTypes.Submodel);
+        result.Keys.Should().ContainSingle().Which.Value.Should().Be("TestId");
+    }
+
+    [Fact]
+    public void SmeForWrite_WithNullSubmodelElements_InitializesAndReturnsNewList()
+    {
+        // Arrange
+        var submodel = _fixture.Build<Submodel>()
+            .With(s => s.SubmodelElements, (List<ISubmodelElement>)null)
+            .Create();
+
+        // Act
+        var result = submodel.SmeForWrite();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEmpty();
+        submodel.SubmodelElements.Should().NotBeNull();
+        submodel.SubmodelElements.Should().BeSameAs(result);
+    }
+
+    [Fact]
+    public void SmeForWrite_WithExistingSubmodelElements_ReturnsSameList()
+    {
+        // Arrange
+        var existingElements = _fixture.Create<List<ISubmodelElement>>();
+        var submodel = _fixture.Build<Submodel>()
+            .With(s => s.SubmodelElements, existingElements)
+            .Create();
+
+        // Act
+        var result = submodel.SmeForWrite();
+
+        // Assert
+        result.Should().BeSameAs(existingElements);
+    }
+
+    [Fact]
+    public void RecurseOnSubmodelElements_ExecutesLambdaForAllElements()
+    {
+        // Arrange
+        var submodelElement1 = _fixture.Create<ISubmodelElement>();
+        var submodelElement2 = _fixture.Create<ISubmodelElement>();
+        var submodel = _fixture.Build<Submodel>()
+            .With(s => s.SubmodelElements, new List<ISubmodelElement> { submodelElement1, submodelElement2 })
+            .Create();
+
+        var state = new object();
+        var lambdaMock = new Mock<Func<object?, List<IReferable>?, IReferable?, bool>>();
+        lambdaMock.Setup(l => l(It.IsAny<object>(), It.IsAny<List<IReferable>>(), It.IsAny<IReferable>())).Returns(true);
+
+        // Act
+        submodel.RecurseOnSubmodelElements(state, lambdaMock.Object);
+
+        // Assert
+        lambdaMock.Verify(l => l(state, It.IsAny<List<IReferable>>(), submodelElement1), Times.Once);
+        lambdaMock.Verify(l => l(state, It.IsAny<List<IReferable>>(), submodelElement2), Times.Once);
+    }
+
+    [Fact]
+    public void FindSubmodelElementByIdShort_SubmodelElementDoesNotExist_ReturnsNull()
+    {
+        // Arrange
+        var submodel = _fixture.Build<Submodel>().With(s => s.SubmodelElements, new List<ISubmodelElement>()).Create();
+        var smeIdShort = "nonExistingIdShort";
+
+        // Act
+        var result = submodel.FindSubmodelElementByIdShort(smeIdShort);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void SetAllParents_SubmodelElementsExist_SetsParentAndTimestamp()
+    {
+        // Arrange
+        var timestamp = DateTime.Now;
+        var submodelElement = _fixture.Create<ISubmodelElement>();
+        var submodel = _fixture.Build<Submodel>()
+            .With(s => s.SubmodelElements, new List<ISubmodelElement> { submodelElement })
+            .Create();
+
+        // Act
+        submodel.SetAllParents(timestamp);
+
+        // Assert
+        submodelElement.Parent.Should().Be(submodel);
+        submodelElement.TimeStamp.Should().Be(timestamp);
+        submodelElement.TimeStampCreate.Should().Be(timestamp);
+    }
+
+    [Fact]
+    public void SetAllParents_NoSubmodelElements_DoesNothing()
+    {
+        // Arrange
+        var timestamp = DateTime.Now;
+        var submodel = _fixture.Build<Submodel>()
+            .With(s => s.SubmodelElements, (List<ISubmodelElement>)null)
+            .Create();
+
+        // Act
+        submodel.SetAllParents(timestamp);
+
+        // Assert
+        // No assertion needed as we just ensure no exceptions are thrown
+    }
+
 }
