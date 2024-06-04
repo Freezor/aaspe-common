@@ -486,4 +486,53 @@ public class ExtendSubmodelTests
         // No assertion needed as we just ensure no exceptions are thrown
     }
 
+    [Fact]
+    public void SetAllParents_SubmodelElementsExist_SetsParents()
+    {
+        // Arrange
+        var submodelElement = _fixture.Create<ISubmodelElement>();
+        var submodel = _fixture.Build<Submodel>()
+            .With(s => s.SubmodelElements, new List<ISubmodelElement> { submodelElement })
+            .Create();
+
+        // Act
+        submodel.SetAllParents();
+
+        // Assert
+        submodelElement.Parent.Should().Be(submodel);
+    }
+
+    [Fact]
+    public void Add_SubmodelElement_AddsElementAndSetsParent()
+    {
+        // Arrange
+        var submodelElement = _fixture.Create<ISubmodelElement>();
+        var submodel = _fixture.Create<Submodel>();
+
+        // Act
+        submodel.Add(submodelElement);
+
+        // Assert
+        submodel.SubmodelElements.Should().Contain(submodelElement);
+        submodelElement.Parent.Should().Be(submodel);
+    }
+
+    [Fact]
+    public void Insert_SubmodelElement_InsertsElementAndSetsParent()
+    {
+        // Arrange
+        var submodelElement1 = _fixture.Create<ISubmodelElement>();
+        var submodelElement2 = _fixture.Create<ISubmodelElement>();
+        var submodel = _fixture.Build<Submodel>()
+            .With(s => s.SubmodelElements, new List<ISubmodelElement> { submodelElement1 })
+            .Create();
+
+        // Act
+        submodel.Insert(0, submodelElement2);
+
+        // Assert
+        submodel.SubmodelElements.Should().Contain(submodelElement2);
+        submodelElement2.Parent.Should().Be(submodel);
+        submodel.SubmodelElements.IndexOf(submodelElement2).Should().Be(0);
+    }
 }
